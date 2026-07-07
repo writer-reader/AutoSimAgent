@@ -12,6 +12,14 @@ function formatTs(ts?: number) {
 function EventRow({ event }: { event: SseEvent }) {
   if (event.type === 'heartbeat' || event.type === 'resume') return null
 
+  // Check _dropped BEFORE type-specific branches
+  const raw = event as Record<string, unknown>
+  if (raw._dropped) {
+    return (
+      <div className="text-xs text-yellow-600">⚠️ 部分事件已丢失</div>
+    )
+  }
+
   if (event.type === 'node') {
     return (
       <div className="flex gap-2 pl-4 text-xs text-slate-400">
@@ -65,14 +73,6 @@ function EventRow({ event }: { event: SseEvent }) {
         <span className="text-slate-400 shrink-0">{formatTs(event.ts)}</span>
         <span>✅ 流水线完成 ({event.status})</span>
       </div>
-    )
-  }
-
-  // _dropped marker
-  const raw = event as Record<string, unknown>
-  if (raw._dropped) {
-    return (
-      <div className="text-xs text-yellow-600">⚠️ 部分事件已丢失</div>
     )
   }
 
