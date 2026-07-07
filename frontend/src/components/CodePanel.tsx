@@ -1,5 +1,6 @@
 // frontend/src/components/CodePanel.tsx
 import Editor from '@monaco-editor/react'
+import { cn } from '@/lib/utils'
 
 interface CodePanelProps {
   language: string
@@ -16,11 +17,12 @@ export function CodePanel({
   onChange, onReset, onDownload, height = '400px',
 }: CodePanelProps) {
   return (
-    <div className="relative border rounded-md overflow-hidden">
+    <div className={cn("relative border rounded-md overflow-hidden")}>
       {/* Action buttons */}
       <div className="absolute top-2 right-2 z-10 flex gap-2">
         {!readOnly && onReset && (
           <button
+            type="button"
             onClick={onReset}
             className="px-2 py-1 text-xs bg-white border rounded shadow-sm hover:bg-gray-50"
           >
@@ -29,6 +31,7 @@ export function CodePanel({
         )}
         {readOnly && onDownload && (
           <button
+            type="button"
             onClick={onDownload}
             className="px-2 py-1 text-xs bg-white border rounded shadow-sm hover:bg-gray-50"
           >
