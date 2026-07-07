@@ -49,7 +49,7 @@ interface AppActions {
   setApproval: (payload: InterruptPayload) => void
   clearApproval: () => void
   setCriteria: (items: CriteriaItem[]) => void
-  setFinalResult: (result: TaskResult, status: string) => void
+  setFinalResult: (result: TaskResult | null, status: string) => void
   setSseDisconnected: (v: boolean) => void
   setStep2Error: (e: string) => void
   addKnownStage: (stage: string) => void
