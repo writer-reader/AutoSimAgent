@@ -183,8 +183,10 @@ def request_approval_node(state: WorkflowState, auto_approve: bool = True) -> Wo
     last_code = state.generated_code
     payload = {
         "tool": "evaluate_matlab_code",
-        "risk": "high",
-        "code_preview": last_code[:500],
+        "language": "matlab",
+        "code": last_code,                      # 完整代码（前端 Monaco 编辑器使用）
+        "interrupt_key": f"approval_{state.task_id}_{len(state.tool_results)}",
+        # 以下字段供后端逻辑使用，前端不展示
         "code_len": len(last_code),
         "retry_counts": state.retries.model_dump(),
     }
