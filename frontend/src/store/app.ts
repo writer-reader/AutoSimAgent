@@ -62,7 +62,7 @@ const STAGE_ORDER = [
 
 let logCounter = 0
 
-export const useAppStore = create<AppState & AppActions>((set, get) => ({
+export const useAppStore = create<AppState & AppActions>((set) => ({
   step: 1,
   paperId: null,
   pdfPath: null,
@@ -101,7 +101,7 @@ export const useAppStore = create<AppState & AppActions>((set, get) => ({
       taskId: null, taskStatus: null, currentStage: null, currentStageLabel: null,
       eventLog: [], sseDisconnected: false, approvalPayload: null, approvalCount: 0,
       currentInterruptKey: null, finalResult: null, step2Error: null,
-      knownStages: [...STAGE_ORDER],
+      criteria: [], knownStages: [...STAGE_ORDER],
     })
   },
 
