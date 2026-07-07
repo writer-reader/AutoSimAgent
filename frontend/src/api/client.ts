@@ -3,6 +3,7 @@ import axios from 'axios'
 import type {
   PaperImportRequest, PaperImportResponse,
   WorkflowStartRequest, TaskStatusResponse,
+  ApiError,
 } from '@/types'
 
 const http = axios.create({ baseURL: '/api' })
@@ -20,8 +21,11 @@ export const api = {
   workflowResume: (taskId: string, approved: boolean, editedCode?: string, interruptKey?: string) =>
     http.post<TaskStatusResponse>(
       `/workflow/${taskId}/resume`,
-      null,
-      { params: { approved, ...(editedCode && { edited_code: editedCode }), ...(interruptKey && { interrupt_key: interruptKey }) } }
+      {
+        ...(editedCode !== undefined && { edited_code: editedCode }),
+        ...(interruptKey !== undefined && { interrupt_key: interruptKey }),
+      },
+      { params: { approved } }
     ).then(r => r.data),
 
   taskStatus: (taskId: string) =>
@@ -35,10 +39,11 @@ export const api = {
 http.interceptors.response.use(
   r => r,
   err => {
+    const status = err.response?.status
     const data = err.response?.data
-    if (data && typeof data.code === 'string') {
-      return Promise.reject(data)
+    if (status >= 400 && status < 500 && typeof data?.code === 'string' && typeof data?.message === 'string') {
+      return Promise.reject({ code: data.code, message: data.message, retryable: Boolean(data.retryable) } as ApiError)
     }
-    return Promise.reject({ code: 'unknown', message: String(err.message), retryable: false })
+    return Promise.reject({ code: 'unknown', message: err?.message ?? String(err), retryable: false } as ApiError)
   }
 )

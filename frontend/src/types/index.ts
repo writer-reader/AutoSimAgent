@@ -68,7 +68,7 @@ export type SseEvent =
   | { type: 'knowledge_done'; criteria_count: number; criteria?: CriteriaItem[]; ts?: number }
   | { type: 'interrupt'; stage: string; label: string; payload: InterruptPayload; ts?: number }
   | { type: 'resume'; label: string; approved: boolean; ts?: number }
-  | { type: 'done'; status: string; result: TaskResult; ts?: number }
+  | { type: 'done'; status: string; result: TaskResult | null; ts?: number }
   | { type: 'error'; error: string; ts?: number }
   | { type: 'heartbeat'; ts?: number }
   | { type: 'unknown'; ts?: number; [k: string]: unknown }
