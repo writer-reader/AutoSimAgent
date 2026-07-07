@@ -22,8 +22,13 @@ ProgressCallback = Callable[[str, dict], None]  # (node_name, detail_dict) -> No
 def build_checkpointer(backend: str = "memory", path: str = "") -> Any:
     if backend == "sqlite":
         try:
+            import sqlite3
+            from pathlib import Path
             from langgraph.checkpoint.sqlite import SqliteSaver
-            return SqliteSaver.from_conn_string(path or "data/checkpoints.db")
+            db_path = path or "data/checkpoints.db"
+            Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+            conn = sqlite3.connect(db_path, check_same_thread=False)
+            return SqliteSaver(conn)
         except ImportError as exc:
             raise ImportError(
                 "langgraph sqlite checkpointer 需要 langgraph[sqlite] 依赖"
