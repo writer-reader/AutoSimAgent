@@ -4,9 +4,10 @@ from __future__ import annotations
 import asyncio
 import json
 import queue as stdlib_queue
+from pathlib import Path
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import PlainTextResponse, StreamingResponse
 
 from app.api.dependencies import get_orchestrator
 from app.api.schemas import TaskStatusResponse, WorkflowStartRequest
@@ -89,14 +90,16 @@ def resume_workflow(
     task_id: str,
     approved: bool = True,
     edited_code: str | None = None,
+    interrupt_key: str | None = None,
     background: BackgroundTasks = None,
     orchestrator: OrchestratorService = Depends(get_orchestrator),
 ) -> TaskStatusResponse:
     """人工审批后恢复图执行。
 
-    - approved=true  → 执行生成的 MATLAB 代码（可同时传 edited_code 覆盖代码）
-    - approved=false → 拒绝，图回退到 plan 节点重新规划
-    - edited_code    → （可选）替换 LLM 生成的代码后再执行
+    - approved=true   → 执行生成的 MATLAB 代码（可同时传 edited_code 覆盖代码）
+    - approved=false  → 拒绝，图回退到 plan 节点重新规划
+    - edited_code     → （可选）替换 LLM 生成的代码后再执行
+    - interrupt_key   → 本次审批的唯一标识，由 SSE interrupt 事件携带，用于多轮审批定位
     """
     task = registry.get(task_id)
     if task is None:
@@ -104,8 +107,43 @@ def resume_workflow(
     if task.get("status") != "awaiting_approval":
         raise HTTPException(status_code=400, detail=f"task not awaiting approval (status={task.get('status')})")
 
-    background.add_task(orchestrator.resume_pipeline, task_id, approved, edited_code)
+    background.add_task(orchestrator.resume_pipeline, task_id, approved, edited_code, interrupt_key)
     return TaskStatusResponse(task_id=task_id, status="running", stage="resuming")
+
+
+@router.get("/{task_id}/code/{filename}", response_class=PlainTextResponse)
+def get_code_file(task_id: str, filename: str) -> str:
+    """返回任务生成的代码文件内容（供前端 Monaco 只读预览和下载）。
+
+    从任务的 result.code_paths 中查找与 filename 匹配的文件路径并返回其内容。
+    只允许读取以 .m 或 .slx 结尾的文件，防止目录穿越。
+    """
+    task = registry.get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="task_not_found")
+
+    result = task.get("result") or {}
+    code_paths: list[str] = result.get("code_paths", [])
+
+    # 防御：只允许安全的文件名（无路径分隔符、无 ..）
+    if not filename or "/" in filename or "\\" in filename or ".." in filename:
+        raise HTTPException(status_code=400, detail="invalid_filename")
+
+    # 从 code_paths 中找到与 filename 匹配的路径
+    matched: str | None = None
+    for p in code_paths:
+        if Path(p).name == filename:
+            matched = p
+            break
+
+    if matched is None:
+        raise HTTPException(status_code=404, detail="code_file_not_found")
+
+    file_path = Path(matched)
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="code_file_missing_on_disk")
+
+    return file_path.read_text(encoding="utf-8")
 
 
 # ── 队列工具 ────────────────────────────────────────────────────────────────

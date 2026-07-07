@@ -171,7 +171,12 @@ class OrchestratorService:
             knowledge_ref = save_merged_knowledge(merged)
             crit_dicts = [c.model_dump() for c in criteria]
             registry.update(task_id, criteria=crit_dicts)
-            _push("knowledge_done", criteria_count=len(crit_dicts))
+            # 映射 criterion_id → criteria_id，与前端约定对齐
+            criteria_for_sse = [
+                {"criteria_id": c["criterion_id"], "description": c["description"]}
+                for c in crit_dicts
+            ]
+            _push("knowledge_done", criteria_count=len(crit_dicts), criteria=criteria_for_sse)
 
             # ── 构建图 ─────────────────────────────────────────
             registry.update(task_id, stage="graph:init")
@@ -249,7 +254,7 @@ class OrchestratorService:
             registry.push_sentinel(task_id)
 
     # resume_pipeline 方法，在人工干预后继续图执行（在 BackgroundTasks 线程中调用）。
-    def resume_pipeline(self, task_id: str, approved: bool, edited_code: str | None = None) -> None:
+    def resume_pipeline(self, task_id: str, approved: bool, edited_code: str | None = None, interrupt_key: str | None = None) -> None:
         def _push(event_type: str, **kw):
             registry.push_event(task_id, {"type": event_type, **kw})
 
@@ -290,8 +295,22 @@ class OrchestratorService:
 
     # _finalize 方法，统一处理图正常结束后的登记与事件推送。
     def _finalize(self, task_id: str, final: WorkflowState, push_fn) -> None:
+        # 从 acceptance_criteria 和 verdict.results 构建 criteria_results（前端约定格式）
+        verdict_results: list[dict] = (final.verdict or {}).get("results", [])
+        criteria_results = []
+        for i, crit in enumerate(final.acceptance_criteria):
+            verdict_item = verdict_results[i] if i < len(verdict_results) else {}
+            criteria_results.append({
+                "criteria_id": crit.get("criterion_id", f"c{i}"),
+                "passed": bool(verdict_item.get("passed", False)),
+                "detail": verdict_item.get("detail") or verdict_item.get("message") or None,
+            })
+
+        verification = dict(final.verification_result)
+        verification["criteria_results"] = criteria_results
+
         result = {
-            "verification": final.verification_result,
+            "verification": verification,
             "verdict": final.verdict,
             "code_paths": final.generated_code_paths,
             "calib_rounds": final.retries.calib,
