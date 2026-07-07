@@ -1,0 +1,11 @@
+# 项目运行和测试所需 Python 依赖清单。
+fastapi>=0.110
+pydantic>=2
+PyYAML>=6
+uvicorn>=0.27
+python-dotenv>=1.0
+openai>=1.40
+mcp>=1.0
+langgraph>=0.2
+httpx>=0.27
+pytest>=7

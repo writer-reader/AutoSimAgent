@@ -1,0 +1,10 @@
+# simulink.yaml —— Simulink MCP 工具配置（工具名对齐真实 MCP）。
+version: "1.0"
+simulink_agentic_toolkit_version: "0.2.0"
+session_isolation: "per_user"
+model_root: "data/models/generated"
+# 高风险工具（需人工审批）
+human_approval_required_tools:
+  - "model_edit"
+  - "model_test"
+simulation_timeout_s: 600

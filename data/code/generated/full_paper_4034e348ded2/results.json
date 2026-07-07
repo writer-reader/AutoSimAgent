@@ -1,0 +1,1 @@
+{"freq_steady_state_error_zero":0.0061964385398809441,"power_sharing_steady_state_error_zero":0.0092545497099051355,"freq_restoration_time_less_than_0_5s":false,"load_change_recovery_time_less_than_0_5s":false,"stable_below_delay_margin":false,"unstable_above_delay_margin":true,"plug_play_stable_recovery":false}

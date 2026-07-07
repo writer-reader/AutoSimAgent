@@ -1,0 +1,1595 @@
+{
+  "paper_id": "paper_4034e348ded2",
+  "title": "Distributed Consensus-Based Secondary Control for Islanded Microgrids with Communication Time-Delays",
+  "sections": [
+    {
+      "section_id": "section_0",
+      "heading": "Distributed Consensus-Based Secondary Control for Islanded Microgrids with Communication Time-Delays",
+      "level": 1,
+      "page_range": [
+        0,
+        0
+      ],
+      "blocks": [
+        {
+          "block_id": "block_0",
+          "type": "paragraph",
+          "text": "Yadong Zhu<sup>\\*,#</sup>",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_0"
+        },
+        {
+          "block_id": "block_1",
+          "type": "paragraph",
+          "text": "Huaqiao University",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_1"
+        },
+        {
+          "block_id": "block_2",
+          "type": "paragraph",
+          "text": "Xiamen, China",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_2"
+        },
+        {
+          "block_id": "block_3",
+          "type": "paragraph",
+          "text": "\\*13233783359@163.com",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_3"
+        },
+        {
+          "block_id": "block_4",
+          "type": "paragraph",
+          "text": "Changcheng Yu<sup>#</sup>",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_4"
+        },
+        {
+          "block_id": "block_5",
+          "type": "paragraph",
+          "text": "China University of Mining and Technology-Beijing",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_5"
+        },
+        {
+          "block_id": "block_6",
+          "type": "paragraph",
+          "text": "Beijing, China",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_6"
+        },
+        {
+          "block_id": "block_7",
+          "type": "paragraph",
+          "text": "<sup>#</sup>These authors contributed equally.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_7"
+        },
+        {
+          "block_id": "block_8",
+          "type": "paragraph",
+          "text": "Abstract—Against the backdrop of complex control and management requirements, the development of microgrids (MGs) faces severe challenges. To effectively address the frequency restoration and active power sharing in MGs under dynamic environments, this paper proposes a distributed secondary control (DSC) based on the consensus protocol of multi-agent systems. This method decentralizes the control logic to each distributed generator and achieves global coordinated through sparse communication among adjacent nodes, significantly enhancing the flexibility of secondary control. Different from traditional distributed control strategies that merely assume ideal communication conditions, this paper derives the system's communication time-delays (CTDs) margin through frequency-domain analysis, and strictly proves the convergence of the system by combining Lyapunov stability theory, providing a quantitative basis for handling communication delays in practical engineering applications. Finally, simulations verify the effectiveness, robustness of the proposed DSC in terms of frequency restoration and active power sharing, as well as the correctness of the theory, and also demonstrate the impact of different CTDs on control performance.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_8"
+        },
+        {
+          "block_id": "block_9",
+          "type": "paragraph",
+          "text": "Keywords—islanded MGs, distributed secondary control, communication time-delay, Lyapunov stability theory, frequencydomain analysis method",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_0.block_9"
+        }
+      ]
+    },
+    {
+      "section_id": "section_1",
+      "heading": "I. INTRODUCTION",
+      "level": 2,
+      "page_range": [
+        0,
+        1
+      ],
+      "blocks": [
+        {
+          "block_id": "block_10",
+          "type": "paragraph",
+          "text": "Nowadays, with the rapid development of renewable energy, microgrids (MGs) have gradually become an important research field due to their flexibility and reliability [1-3]. However, the deployment of a large number of highly random and volatile distributed generators (DGs) (such as photovoltaic (PV) and wind turbines) poses higher requirements for the stable operation of MGs. To address this issue, the hierarchical control architecture has been introduced [4,5], which achieves efficient system management by dividing control functions into three layers. In this architecture, the primary control and secondary control serve as core components, respectively undertaking basic control and global optimization tasks to form a collaborative control system with clear division of labor.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_1.block_0"
+        },
+        {
+          "block_id": "block_11",
+          "type": "paragraph",
+          "text": "The primary control serves as the bottom-level control unit of MGs, primarily responsible for local real-time power sharing and fast dynamic response. Taking the typical droop control as an example, it simulates the frequency-active power and voltage-reactive power droop characteristics of synchronous generators, enabling each distributed generator (DG) to autonomously respond to load changes and achieve preliminary power sharing [6, 7]. As the upper-level regulation unit, the secondary control layer focuses on system-level global optimization and deviation correction. By collecting system-wide state information such as frequency and voltage, it generates compensation signals based on control algorithms to adjust the parameters of the primary control, thereby achieving frequency restoration and precise active power sharing [8-12].",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_1.block_1"
+        },
+        {
+          "block_id": "block_13",
+          "type": "paragraph",
+          "text": "Existing secondary control strategies fall into two categories: centralized and distributed architectures. Centralized control relies on a central controller to process global communication data, yet suffers from single-point failure risks and has poor compatibility for plug-and-play, thereby compromising system security and stability [13-15]. In contrast, distributed secondary control (DSC) achieves cooperative regulation through localized information exchange between neighboring nodes, significantly enhancing system robustness against failures. Its inherent adaptability to topology reconfiguration makes distributed approaches particularly suitable for dynamic MGs environments, establishing them as a prevailing research focus [16-19].",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_1.block_2"
+        },
+        {
+          "block_id": "block_14",
+          "type": "paragraph",
+          "text": "DSC in MGs requires coordinated operation of multiple DGs through communication networks. Current studies often idealize network conditions, neglecting the critical impact of communication time-delays (CTDs) For instance, reference [20] employs a hierarchical observer with model predictive control for rapid frequency restoration in PV-rich scenarios, while reference [21] proposes a data-driven frequency control scheme using maximum entropy deep reinforcement learning. However, neither adequately addresses the compounded effects of realistic communication delays on distributed coordination.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_1.block_3"
+        },
+        {
+          "block_id": "block_15",
+          "type": "paragraph",
+          "text": "In MGs system, CTDs are inevitable and non-negligible due to the inherent communication delays between components and the physical constraints of system dynamic response, which collectively impede instantaneous information transfer and system-wide coordination. Under distributed architectures, such delays may cause data asynchrony, leading to localized overshoot/undershoot, sustained oscillations, and even system instability [22-24] . When coupled with cyberattacks, CTDs can amplify instability risks by disrupting cooperative control mechanisms [25-27]. Consequently, communication timedelay (CTD) mitigation has emerged as a pivotal challenge impeding MGs deployment, demanding proactive modeling and compensation strategies as essential technical breakthroughs for next-generation smart MGs.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 0,
+          "evidence_ref": "section_1.block_4"
+        },
+        {
+          "block_id": "block_18",
+          "type": "paragraph",
+          "text": "This paper proposes a DSC that achieves precise frequency restoration and active power sharing within the CTD margin. A consensus protocol algorithm with delay awareness is designed, whose convergence and stability are analyzed based on Lyapunov stability theory, and the system’s CTD margin is derived using frequency-domain analysis methods. For simulation verification, a Matlab/Simulink-based environment is constructed to set up multiple scenarios for investigating the impact of delays on system convergence and the compatibility of the control algorithm for plug-and-play, providing a robust foundation for practical engineering applications.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_1.block_5"
+        },
+        {
+          "block_id": "block_19",
+          "type": "paragraph",
+          "text": "The structure of this paper is organized as follows: Section 1 introduces the research background and delayrelated challenges in DSC; Section 2 presents relevant theoretical foundations and formulates control objectives; Section 3 details the distributed secondary control design and completes the stability analysis; Section 4 verifies the control performance under multiple delay scenarios via Matlab/Simulink simulations; Section 5 summarizes the research and outlines future research directions.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_1.block_6"
+        },
+        {
+          "block_id": "block_20",
+          "type": "paragraph",
+          "text": "Notation. $\\mathbf { R } ^ { N }$ is the set of $N { \\times } 1$ real column vectors and $\\mathbf { R } ^ { N \\times N }$ is the set of $N \\times N$ real matrices. $\\mathbf { 1 } _ { N } ^ { T }$ represents an -dimensional column vector with all elements being 1. represents the set of integers. $\\operatorname { R e } ( s ) / \\operatorname { I m } ( s )$ means the real/imaginary part of the complex number  .",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_1.block_7"
+        }
+      ]
+    },
+    {
+      "section_id": "section_2",
+      "heading": "II. PRELIMINARIES AND CONTROL OBJECTIVES",
+      "level": 2,
+      "page_range": [
+        1,
+        1
+      ],
+      "blocks": [
+        {
+          "block_id": "block_21",
+          "type": "paragraph",
+          "text": "In this section, we present the preliminary knowledge required for subsequent analysis and formulate the control objectives.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_2.block_0"
+        }
+      ]
+    },
+    {
+      "section_id": "section_3",
+      "heading": "A. Graph Theory",
+      "level": 2,
+      "page_range": [
+        1,
+        1
+      ],
+      "blocks": [
+        {
+          "block_id": "block_22",
+          "type": "paragraph",
+          "text": "We employ an undirected graph to characterize the communication network involving interactions among multiple DGs. In this undirected graph, nodes represent all DGs, while edges represent information flow. The graph is denoted as $G = \\{ V , E , A \\}$ , where the node set $V = \\{ 1 , . . . , N \\}$ the edge set is denoted by  , and $E \\subseteq V \\times V$ . The adjacency matrix $\\boldsymbol { A } = [ a _ { i j } ] \\in \\mathbf { R } ^ { N \\times N }$ describes the relationships between nodes: if $( j , i ) \\in E$ , nodes  and  can mutually access information. The neighbor set of nodes  is defined as $N _ { \\ i } = \\{ j \\vert ( j , i ) \\in E \\}$ When $( j , i ) \\in E$ the weight $a _ { i j } = a _ { j i } = 1$ ; otherwise, $a _ { i j } = 0$ . The corresponding Laplacian matrix ${ \\cal L } = [ a _ { i j } ] \\in { \\bf R } ^ { N \\times N }$ , where $l _ { i i } = \\sum _ { j = 1 , j \\neq i } ^ { N } a _ { i j }$ and $l _ { i j } = - a _ { i j } ( i \\neq j )$ . The pinning matrix $B = \\mathrm { d i a g } [ b _ { 1 } , . . . , b _ { { \\scriptscriptstyle N } } ]$ indicates the reception of reference node signals by all nodes, where reference node is generally set as the reference point for the system's rated voltage and rated frequency. If node  can directly receive the reference signal, $b _ { i } = 1$ ; otherwise, $b _ { i } = 0$",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_3.block_0"
+        },
+        {
+          "block_id": "block_23",
+          "type": "paragraph",
+          "text": "Definition 1: For any two nodes i and  in the graph, there exists a path composed of edges to connect  and $j$ then the undirected graph  is said to be connected.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_3.block_1"
+        },
+        {
+          "block_id": "block_24",
+          "type": "paragraph",
+          "text": "Assumption 1: The undirected graph G is connected, and",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_3.block_2"
+        },
+        {
+          "block_id": "block_25",
+          "type": "paragraph",
+          "text": "at least one node can receive information from reference node.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_3.block_3"
+        },
+        {
+          "block_id": "block_26",
+          "type": "paragraph",
+          "text": "Lemma 1: If Assumption 1 holds, the Laplacian matrix L has eigenvalues $0 = \\lambda _ { 1 } < \\lambda _ { 2 } \\leq \\cdots \\lambda _ { N }$ , and there exists $z ^ { T } L z \\ge \\lambda _ { 2 } z ^ { T } z > 0$ for $z \\in { \\mathbf { R } } ^ { N }$ satisfying $\\mathbf { 1 } _ { N } ^ { T } z = 0$ ; matrix $M = L + B$ is positive definite.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_3.block_4"
+        }
+      ]
+    },
+    {
+      "section_id": "section_4",
+      "heading": "B. MGs Structure and Control loop",
+      "level": 2,
+      "page_range": [
+        1,
+        2
+      ],
+      "blocks": [
+        {
+          "block_id": "block_27",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/94841ff4bee8ec74b5b97fcfec4ee0e992aa84f9c1cb01826e87729462dff2e0.jpg",
+          "page_idx": 1,
+          "evidence_ref": "section_4.block_0"
+        },
+        {
+          "block_id": "block_28",
+          "type": "paragraph",
+          "text": "As shown in Fig. 1, the microgrid (MG) is primarily composed of DGs, power conversion units, filter units, control units, etc. Primary control serves as the local autonomous layer, where each distributed generator (DG) operates independently, quickly responding to load changes through droop control to maintain local power balance, and its equation is",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_4.block_1"
+        },
+        {
+          "block_id": "block_29",
+          "type": "equation",
+          "text": "$$\n\\left\\{ \\begin{array} { l l } { f _ { i } = f _ { i } ^ { n } - k _ { i } ^ { P } P _ { i } , } \\\\ { \\nu _ { i } ^ { o d } = \\nu _ { i } ^ { n } - k _ { i } ^ { Q } \\mathcal { Q } _ { i } , \\nu _ { i } ^ { o q } = 0 . } \\end{array} \\right.\\tag{1}\n$$",
+          "latex": "$$\n\\left\\{ \\begin{array} { l l } { f _ { i } = f _ { i } ^ { n } - k _ { i } ^ { P } P _ { i } , } \\\\ { \\nu _ { i } ^ { o d } = \\nu _ { i } ^ { n } - k _ { i } ^ { Q } \\mathcal { Q } _ { i } , \\nu _ { i } ^ { o q } = 0 . } \\end{array} \\right.\\tag{1}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_4.block_2"
+        },
+        {
+          "block_id": "block_30",
+          "type": "paragraph",
+          "text": "where $f _ { i }$ is the frequency of node $i , \\nu _ { i } ^ { o d }$ and $\\nu _ { i } ^ { o q }$ are the $d$ - axis and $q$ - axis voltages respectively, $f _ { i } ^ { n }$ and $ { \\boldsymbol \\nu } _ { i } ^ { n }$ represent the reference voltage and reference angular frequency respectively, $k _ { i } ^ { P }$ and $k _ { i } ^ { \\mathcal { Q } }$ represent the reactive droop coefficient and active droop coefficient respectively. Since $\\nu _ { i } = \\sqrt { ( \\nu _ { i } ^ { o d } ) ^ { 2 } + ( \\nu _ { i } ^ { o q } ) ^ { 2 } }$ , so in the following text, $\\nu _ { _ i }$ is used to replace $\\nu _ { i } ^ { o d }$ . Therefore, the primary control of the system can be expressed as",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_4.block_3"
+        },
+        {
+          "block_id": "block_31",
+          "type": "equation",
+          "text": "$$\n\\left\\{ \\begin{array} { l l } { f _ { i } = f _ { i } ^ { n } - k _ { i } ^ { P } P _ { i } , } \\\\ { \\nu _ { i } = \\nu _ { i } ^ { n } - k _ { i } ^ { Q } Q _ { i } . } \\end{array} \\right.\\tag{2}\n$$",
+          "latex": "$$\n\\left\\{ \\begin{array} { l l } { f _ { i } = f _ { i } ^ { n } - k _ { i } ^ { P } P _ { i } , } \\\\ { \\nu _ { i } = \\nu _ { i } ^ { n } - k _ { i } ^ { Q } Q _ { i } . } \\end{array} \\right.\\tag{2}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_4.block_4"
+        },
+        {
+          "block_id": "block_32",
+          "type": "paragraph",
+          "text": "Taking the derivative of (2) with respect to time, we can obtain",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 1,
+          "evidence_ref": "section_4.block_5"
+        },
+        {
+          "block_id": "block_33",
+          "type": "equation",
+          "text": "$$\n\\left\\{ \\begin{array} { r } { \\dot { f } _ { i } = u _ { i } ^ { \\omega } , } \\\\ { k _ { i } ^ { P } \\dot { P } _ { i } = u _ { i } ^ { P } , } \\end{array} \\right.\\tag{3}\n$$",
+          "latex": "$$\n\\left\\{ \\begin{array} { r } { \\dot { f } _ { i } = u _ { i } ^ { \\omega } , } \\\\ { k _ { i } ^ { P } \\dot { P } _ { i } = u _ { i } ^ { P } , } \\end{array} \\right.\\tag{3}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_4.block_6"
+        },
+        {
+          "block_id": "block_34",
+          "type": "paragraph",
+          "text": "where $u _ { i } ^ { f }$ and $u _ { i } ^ { P }$ are the DSC to be designed. By transforming and integrating (3) , we can obtain",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_4.block_7"
+        },
+        {
+          "block_id": "block_35",
+          "type": "equation",
+          "text": "$$\nf _ { i } ^ { n } = \\int _ { 0 } ^ { t } u _ { i } ^ { f } ( r ) + u _ { i } ^ { P } ( r ) d r ,\\tag{4}\n$$",
+          "latex": "$$\nf _ { i } ^ { n } = \\int _ { 0 } ^ { t } u _ { i } ^ { f } ( r ) + u _ { i } ^ { P } ( r ) d r ,\\tag{4}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_4.block_8"
+        },
+        {
+          "block_id": "block_36",
+          "type": "paragraph",
+          "text": "where $f _ { i } ^ { n }$ is the frequency correction quantities output by the secondary control of the i -th DG. Through an integrator, the steady-state frequency deviations caused by the primary control are eliminated, and the correction quantities are fed back to the primary control loop as reference quantities to achieve frequency synchronization across the entire network as shown in Fig. 1.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_4.block_9"
+        }
+      ]
+    },
+    {
+      "section_id": "section_5",
+      "heading": "C. Control Objectives",
+      "level": 2,
+      "page_range": [
+        2,
+        2
+      ],
+      "blocks": [
+        {
+          "block_id": "block_37",
+          "type": "paragraph",
+          "text": "The main objectives of this paper include:",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_5.block_0"
+        },
+        {
+          "block_id": "block_38",
+          "type": "paragraph",
+          "text": "1) Frequency restoration:",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_5.block_1"
+        },
+        {
+          "block_id": "block_39",
+          "type": "equation",
+          "text": "$$\n\\operatorname* { l i m } _ { t  + \\infty } \\mid f _ { i } - f _ { r e f } \\mid = 0 , i = 1 , 2 , \\cdots N ,\\tag{5}\n$$",
+          "latex": "$$\n\\operatorname* { l i m } _ { t  + \\infty } \\mid f _ { i } - f _ { r e f } \\mid = 0 , i = 1 , 2 , \\cdots N ,\\tag{5}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_5.block_2"
+        },
+        {
+          "block_id": "block_40",
+          "type": "paragraph",
+          "text": "where $f _ { r e f }$ is the frequency of system.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_5.block_3"
+        },
+        {
+          "block_id": "block_41",
+          "type": "paragraph",
+          "text": "2) Active power sharing:",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_5.block_4"
+        },
+        {
+          "block_id": "block_42",
+          "type": "equation",
+          "text": "$$\n\\operatorname * { l i m } _ { t  + \\infty } \\mid k _ { i } ^ { P } P _ { i } - k _ { j } ^ { P } P _ { j } \\mid = 0 , i , j = 1 , 2 , \\cdots N .\\tag{6}\n$$",
+          "latex": "$$\n\\operatorname * { l i m } _ { t  + \\infty } \\mid k _ { i } ^ { P } P _ { i } - k _ { j } ^ { P } P _ { j } \\mid = 0 , i , j = 1 , 2 , \\cdots N .\\tag{6}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_5.block_5"
+        }
+      ]
+    },
+    {
+      "section_id": "section_6",
+      "heading": "III. CONTROLLER DESIGN AND STABILITY ANALYSIS",
+      "level": 2,
+      "page_range": [
+        2,
+        2
+      ],
+      "blocks": [
+        {
+          "block_id": "block_43",
+          "type": "paragraph",
+          "text": "In this section, we introduce the design process of the controller, conduct convergence analysis, and preliminarily explore the impact of CTDs on control performance.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_6.block_0"
+        }
+      ]
+    },
+    {
+      "section_id": "section_7",
+      "heading": "A. Frequency Restoration",
+      "level": 2,
+      "page_range": [
+        2,
+        2
+      ],
+      "blocks": [
+        {
+          "block_id": "block_44",
+          "type": "paragraph",
+          "text": "To eliminate the frequency deviation caused by primary control and restore the system to the rated frequency, we introduce a consensus protocol: $\\textstyle \\sum _ { j = 1 } ^ { N } a _ { i j } ( f _ { j } - f _ { i } )$ , forcing adjacent-node frequencies to synchronize. Meanwhile, a reference tracking term $b _ { i } ( f _ { r e f } - f _ { i } )$ is introduced, where $f _ { r e f }$ is the frequency of the reference node, to ensure that the system finally tracks the global reference value. Therefore, the DSC for frequency restoration is formulated as",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_0"
+        },
+        {
+          "block_id": "block_45",
+          "type": "equation",
+          "text": "$$\n\\begin{array} { r } { u _ { i } ^ { f } = m _ { f } ( \\sum _ { j = 1 } ^ { N } a _ { i j } ( f _ { j } - f _ { i } ) + b _ { i } ( f _ { r e f } - f _ { i } ) ) , } \\end{array}\\tag{7}\n$$",
+          "latex": "$$\n\\begin{array} { r } { u _ { i } ^ { f } = m _ { f } ( \\sum _ { j = 1 } ^ { N } a _ { i j } ( f _ { j } - f _ { i } ) + b _ { i } ( f _ { r e f } - f _ { i } ) ) , } \\end{array}\\tag{7}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_1"
+        },
+        {
+          "block_id": "block_46",
+          "type": "paragraph",
+          "text": "where $m _ { f } > 0$ is the frequency-control gain.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_2"
+        },
+        {
+          "block_id": "block_47",
+          "type": "paragraph",
+          "text": "Theorem 1: Under Assumption 1 and DSC (7) , the global frequency error converges to zero, that ${ \\mathrm { i } } \\mathbf { s } ,$ the frequency restoration of system can be realized.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_3"
+        },
+        {
+          "block_id": "block_48",
+          "type": "paragraph",
+          "text": "Proof: Define the global frequency-error vector $e _ { f } = [ f _ { 1 } - f _ { \\mathrm { r e f } } , . . . , f _ { N } - f _ { \\mathrm { r e f } } ] ^ { T }$ and $\\boldsymbol { f } = [ f _ { 1 } , . . . , f _ { N } ] ^ { T }$ . we can obtain",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_4"
+        },
+        {
+          "block_id": "block_49",
+          "type": "equation",
+          "text": "$$\n\\dot { \\boldsymbol { f } } = - m _ { f } \\left( \\boldsymbol { L } + \\boldsymbol { B } \\right) \\boldsymbol { e } _ { f } = - m _ { f } \\boldsymbol { M } \\boldsymbol { e } _ { f } ,\\tag{8}\n$$",
+          "latex": "$$\n\\dot { \\boldsymbol { f } } = - m _ { f } \\left( \\boldsymbol { L } + \\boldsymbol { B } \\right) \\boldsymbol { e } _ { f } = - m _ { f } \\boldsymbol { M } \\boldsymbol { e } _ { f } ,\\tag{8}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_5"
+        },
+        {
+          "block_id": "block_50",
+          "type": "paragraph",
+          "text": "where matrix is positive definite according to Lemma 1. Construct a Lyapunov function as",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_6"
+        },
+        {
+          "block_id": "block_51",
+          "type": "equation",
+          "text": "$$\nV = \\frac { 1 } { 2 } e _ { f } ^ { T } e _ { f } .\\tag{9}\n$$",
+          "latex": "$$\nV = \\frac { 1 } { 2 } e _ { f } ^ { T } e _ { f } .\\tag{9}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_7"
+        },
+        {
+          "block_id": "block_52",
+          "type": "paragraph",
+          "text": "Taking the derivative with respect to time yields",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_8"
+        },
+        {
+          "block_id": "block_53",
+          "type": "equation",
+          "text": "$$\n\\dot { V } = e _ { f } ^ { T } \\dot { e } _ { f } = e ^ { T } \\dot { f } = - m _ { f } e _ { f } ^ { T } M e _ { f } < 0 .\\tag{10}\n$$",
+          "latex": "$$\n\\dot { V } = e _ { f } ^ { T } \\dot { e } _ { f } = e ^ { T } \\dot { f } = - m _ { f } e _ { f } ^ { T } M e _ { f } < 0 .\\tag{10}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_9"
+        },
+        {
+          "block_id": "block_54",
+          "type": "paragraph",
+          "text": "It follows from the Lyapunov stability theory that lim $V = 0 ~ , ~ \\mathrm { i . e . , } ~ \\operatorname * { l i m } _ { t  + \\infty } | \\ f _ { i } - \\stackrel { . } { f _ { r e f } } | = 0 , \\forall i = 1 , \\stackrel { . } { 2 } , \\cdots N$ . As a t→+∝ result, the frequency restoration is realized under DSC (7) .",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_7.block_10"
+        }
+      ]
+    },
+    {
+      "section_id": "section_8",
+      "heading": "B. Active Power Sharing",
+      "level": 2,
+      "page_range": [
+        2,
+        2
+      ],
+      "blocks": [
+        {
+          "block_id": "block_55",
+          "type": "paragraph",
+          "text": "In MGs, DGs sharing active power according to capacity proportion is a core principle to ensure the safe, stable, and economic operation of the system, which can balance equipment utilization and effectively reduce costs. To meet the droop characteristics (2) while achieving frequency restoration, the active power sharing needs to satisfy the condition $k _ { i } ^ { P } P _ { i } = k _ { j } ^ { P } P _ { j }$ , and the DSC for active power sharing is designed as",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_0"
+        },
+        {
+          "block_id": "block_56",
+          "type": "equation",
+          "text": "$$\n\\begin{array} { r } { u _ { i } ^ { P } = m _ { P } \\sum _ { j = 1 } ^ { N } a _ { i j } ( k _ { j } ^ { P } P _ { j } - k _ { i } ^ { P } P _ { i } ) , } \\end{array}\\tag{11}\n$$",
+          "latex": "$$\n\\begin{array} { r } { u _ { i } ^ { P } = m _ { P } \\sum _ { j = 1 } ^ { N } a _ { i j } ( k _ { j } ^ { P } P _ { j } - k _ { i } ^ { P } P _ { i } ) , } \\end{array}\\tag{11}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_1"
+        },
+        {
+          "block_id": "block_57",
+          "type": "paragraph",
+          "text": "where $m _ { p } > 0$ is the active power – control gain.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_2"
+        },
+        {
+          "block_id": "block_58",
+          "type": "paragraph",
+          "text": "Theorem 2: Under Assumption 1 and DSC (11), the active power sharing can be realized.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_3"
+        },
+        {
+          "block_id": "block_59",
+          "type": "paragraph",
+          "text": "Proof: Define the active power sharing error vector",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_4"
+        },
+        {
+          "block_id": "block_60",
+          "type": "equation",
+          "text": "$$\ne _ { P } = ( k _ { i } ^ { P } P _ { i } - \\frac { 1 } { N } { \\sum } _ { i = 1 } ^ { N } k _ { i } ^ { P } P _ { i } , . . . , k _ { N } ^ { P } P _ { N } - \\frac { 1 } { N } { \\sum } _ { i = 1 } ^ { N } k _ { i } ^ { P } P _ { i } ) ^ { T }\n$$",
+          "latex": "$$\ne _ { P } = ( k _ { i } ^ { P } P _ { i } - \\frac { 1 } { N } { \\sum } _ { i = 1 } ^ { N } k _ { i } ^ { P } P _ { i } , . . . , k _ { N } ^ { P } P _ { N } - \\frac { 1 } { N } { \\sum } _ { i = 1 } ^ { N } k _ { i } ^ { P } P _ { i } ) ^ { T }\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_5"
+        },
+        {
+          "block_id": "block_61",
+          "type": "paragraph",
+          "text": "satisfying $\\mathbf { 1 } _ { N } ^ { T } e _ { P } = 0$ and $\\boldsymbol { k } ^ { P } = [ k _ { 1 } ^ { P } P _ { 1 } , . . . , k _ { N } ^ { P } P _ { N } ]$ . We can obtain",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_6"
+        },
+        {
+          "block_id": "block_62",
+          "type": "equation",
+          "text": "$$\nk ^ { P } \\dot { P } = - m _ { P } L e _ { P } .\\tag{12}\n$$",
+          "latex": "$$\nk ^ { P } \\dot { P } = - m _ { P } L e _ { P } .\\tag{12}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_7"
+        },
+        {
+          "block_id": "block_63",
+          "type": "paragraph",
+          "text": "Construct a Lyapunov function as",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_8"
+        },
+        {
+          "block_id": "block_64",
+          "type": "equation",
+          "text": "$$\nV = \\frac { 1 } { 2 } e _ { P } ^ { T } e _ { P } .\\tag{13}\n$$",
+          "latex": "$$\nV = \\frac { 1 } { 2 } e _ { P } ^ { T } e _ { P } .\\tag{13}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_9"
+        },
+        {
+          "block_id": "block_65",
+          "type": "paragraph",
+          "text": "Taking the derivative with respect to time yields",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_10"
+        },
+        {
+          "block_id": "block_66",
+          "type": "equation",
+          "text": "$$\n\\dot { V } = e _ { P } ^ { T } \\dot { e } _ { P } = e _ { P } ^ { T } k ^ { P } \\dot { P } = - m _ { p } e _ { P } ^ { T } L e _ { P } \\leq - m _ { p } \\lambda _ { 2 } e _ { P } ^ { T } e _ { P } < 0 , ( 1 4 )\n$$",
+          "latex": "$$\n\\dot { V } = e _ { P } ^ { T } \\dot { e } _ { P } = e _ { P } ^ { T } k ^ { P } \\dot { P } = - m _ { p } e _ { P } ^ { T } L e _ { P } \\leq - m _ { p } \\lambda _ { 2 } e _ { P } ^ { T } e _ { P } < 0 , ( 1 4 )\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_11"
+        },
+        {
+          "block_id": "block_67",
+          "type": "paragraph",
+          "text": "where $\\lambda _ { 2 }$ is the second-smallest eigenvalue of Laplacian matrix , it follows from Lemma 1 that (14) holds. That is, the active power sharing is realized.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_8.block_12"
+        }
+      ]
+    },
+    {
+      "section_id": "section_9",
+      "heading": "C. Controller Design with CTDs",
+      "level": 2,
+      "page_range": [
+        2,
+        3
+      ],
+      "blocks": [
+        {
+          "block_id": "block_68",
+          "type": "paragraph",
+          "text": "In practice, the state information of nodes needs to experience a CTD before being transmitted to adjacent nodes. Taking frequency restoration as an example, considering a fixed CTD, DSC (7) is modified as",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 2,
+          "evidence_ref": "section_9.block_0"
+        },
+        {
+          "block_id": "block_69",
+          "type": "equation",
+          "text": "$$\n\\begin{array} { l } { \\dot { f } _ { i } = m _ { f } ( \\sum _ { j = 1 } ^ { N } a _ { i j } ( f _ { j } ( t - \\tau ) - f _ { i } ( t - \\tau ) ) } \\\\ { \\quad \\ + b _ { i } ( f _ { r e f } - f _ { i } ( t - \\tau ) ) ) . } \\end{array}\\tag{15}\n$$",
+          "latex": "$$\n\\begin{array} { l } { \\dot { f } _ { i } = m _ { f } ( \\sum _ { j = 1 } ^ { N } a _ { i j } ( f _ { j } ( t - \\tau ) - f _ { i } ( t - \\tau ) ) } \\\\ { \\quad \\ + b _ { i } ( f _ { r e f } - f _ { i } ( t - \\tau ) ) ) . } \\end{array}\\tag{15}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_1"
+        },
+        {
+          "block_id": "block_70",
+          "type": "paragraph",
+          "text": "Theorem 3: There exists a delay margin $\\tau _ { \\mathrm { m a x } }$ such that when the communication delay $\\tau \\leq \\tau _ { \\operatorname* { m a x } }$ , the system states can still achieve consensus and maintain system stability.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_2"
+        },
+        {
+          "block_id": "block_71",
+          "type": "paragraph",
+          "text": "Proof: When considering communication delays, the frequency error vector becomes",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_3"
+        },
+        {
+          "block_id": "block_72",
+          "type": "equation",
+          "text": "$$\ne _ { _ { f i } } ( t - \\tau ) = f _ { i } ( t - \\tau ) - f _ { _ { r e f } } .\\tag{16}\n$$",
+          "latex": "$$\ne _ { _ { f i } } ( t - \\tau ) = f _ { i } ( t - \\tau ) - f _ { _ { r e f } } .\\tag{16}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_4"
+        },
+        {
+          "block_id": "block_73",
+          "type": "paragraph",
+          "text": "Considering communication CTDs, (8) becomes",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_5"
+        },
+        {
+          "block_id": "block_74",
+          "type": "equation",
+          "text": "$$\n\\dot { \\boldsymbol { f } } = - m _ { f } M \\boldsymbol { e } ( t - \\tau ) .\\tag{17}\n$$",
+          "latex": "$$\n\\dot { \\boldsymbol { f } } = - m _ { f } M \\boldsymbol { e } ( t - \\tau ) .\\tag{17}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_6"
+        },
+        {
+          "block_id": "block_75",
+          "type": "paragraph",
+          "text": "Perform Laplace transform on the dynamic equation, and obtain",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_7"
+        },
+        {
+          "block_id": "block_76",
+          "type": "equation",
+          "text": "$$\ns E _ { f } ( s ) = - m _ { f } M e ^ { - s \\tau } E _ { f } ( s ) .\\tag{18}\n$$",
+          "latex": "$$\ns E _ { f } ( s ) = - m _ { f } M e ^ { - s \\tau } E _ { f } ( s ) .\\tag{18}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_8"
+        },
+        {
+          "block_id": "block_77",
+          "type": "paragraph",
+          "text": "Thus, the characteristic equation is obtained:",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_9"
+        },
+        {
+          "block_id": "block_78",
+          "type": "equation",
+          "text": "$$\nd e t ( s I + m _ { f } M e ^ { - s \\tau } ) = 0 .\\tag{19}\n$$",
+          "latex": "$$\nd e t ( s I + m _ { f } M e ^ { - s \\tau } ) = 0 .\\tag{19}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_10"
+        },
+        {
+          "block_id": "block_79",
+          "type": "paragraph",
+          "text": "Stability condition: The real part of all characteristic roots needs to satisfy $ { \\mathrm { R e } } ( s ) < 0$ , that is, the system is stable in the left-half plane of the complex plane.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_11"
+        },
+        {
+          "block_id": "block_80",
+          "type": "paragraph",
+          "text": "Decompose the characteristic equation into a singlevariable form, and each eigenvalue $\\lambda _ { i }$ of matrix M corresponds to",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_12"
+        },
+        {
+          "block_id": "block_81",
+          "type": "equation",
+          "text": "$$\ns + m _ { f } \\lambda _ { i } e ^ { - s \\tau } = 0 .\\tag{20}\n$$",
+          "latex": "$$\ns + m _ { f } \\lambda _ { i } e ^ { - s \\tau } = 0 .\\tag{20}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_13"
+        },
+        {
+          "block_id": "block_82",
+          "type": "paragraph",
+          "text": "When the system is critically stable, the characteristic root $s = j \\omega$ (on the imaginary axis), substituting it in, we get",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_14"
+        },
+        {
+          "block_id": "block_83",
+          "type": "equation",
+          "text": "$$\nj \\omega + m _ { f } \\lambda _ { i } e ^ { - j \\omega \\tau } = 0 .\\tag{21}\n$$",
+          "latex": "$$\nj \\omega + m _ { f } \\lambda _ { i } e ^ { - j \\omega \\tau } = 0 .\\tag{21}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_15"
+        },
+        {
+          "block_id": "block_84",
+          "type": "paragraph",
+          "text": "Transform the equation into",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_16"
+        },
+        {
+          "block_id": "block_85",
+          "type": "equation",
+          "text": "$$\ne ^ { - j \\omega \\tau } = - \\frac { j \\omega } { m _ { f } \\lambda _ { i } } .\\tag{22}\n$$",
+          "latex": "$$\ne ^ { - j \\omega \\tau } = - \\frac { j \\omega } { m _ { f } \\lambda _ { i } } .\\tag{22}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_17"
+        },
+        {
+          "block_id": "block_86",
+          "type": "paragraph",
+          "text": "By the amplitude condition (the magnitudes on both sides of the equation need to be equal) and the phase condition (the phases on both sides of the equation need to be equal or differ by $2 k \\pi )$ , the following system of equations can be obtained:",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_18"
+        },
+        {
+          "block_id": "block_87",
+          "type": "equation",
+          "text": "$$\n\\left\\{ \\begin{array} { l } { \\displaystyle { \\big | e ^ { - j \\omega \\tau } \\big | = \\big | - \\frac { j \\omega } { m _ { f } \\lambda _ { i } } \\big | , } } \\\\ { \\displaystyle { - \\omega \\tau = - \\frac { \\pi } { 2 } + 2 k \\pi ( k \\in { \\bf Z } ) . } } \\end{array} \\right.\\tag{23}\n$$",
+          "latex": "$$\n\\left\\{ \\begin{array} { l } { \\displaystyle { \\big | e ^ { - j \\omega \\tau } \\big | = \\big | - \\frac { j \\omega } { m _ { f } \\lambda _ { i } } \\big | , } } \\\\ { \\displaystyle { - \\omega \\tau = - \\frac { \\pi } { 2 } + 2 k \\pi ( k \\in { \\bf Z } ) . } } \\end{array} \\right.\\tag{23}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_19"
+        },
+        {
+          "block_id": "block_88",
+          "type": "paragraph",
+          "text": "By solving simultaneously, the critical CTD is obtained:",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_20"
+        },
+        {
+          "block_id": "block_89",
+          "type": "equation",
+          "text": "$$\n\\tau _ { { i } } = \\frac { \\pi } { 2 k _ { f } \\lambda _ { i } } - \\frac { 2 k \\pi } { k _ { f } \\lambda _ { i } } .\\tag{24}\n$$",
+          "latex": "$$\n\\tau _ { { i } } = \\frac { \\pi } { 2 k _ { f } \\lambda _ { i } } - \\frac { 2 k \\pi } { k _ { f } \\lambda _ { i } } .\\tag{24}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_21"
+        },
+        {
+          "block_id": "block_90",
+          "type": "paragraph",
+          "text": "Take the smallest positive solution $k = 0$ , calculate the corresponding critical CTD $\\tau _ { i }$ for all eigenvalues $\\lambda _ { i }$ , and obtain the CTD margin of the frequency controller:",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_22"
+        },
+        {
+          "block_id": "block_91",
+          "type": "equation",
+          "text": "$$\n\\tau _ { \\mathrm { m a x } } = \\frac { \\pi } { 2 m _ { f } \\lambda _ { \\mathrm { m a x } } } ,\\tag{25}\n$$",
+          "latex": "$$\n\\tau _ { \\mathrm { m a x } } = \\frac { \\pi } { 2 m _ { f } \\lambda _ { \\mathrm { m a x } } } ,\\tag{25}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_23"
+        },
+        {
+          "block_id": "block_92",
+          "type": "paragraph",
+          "text": "where $\\lambda _ { \\operatorname* { m a x } }$ is the maximum eigenvalue of matrix . Similarly, we can also obtain the CTD margin of the activepower sharing controller, which depends on the active- power gain $m _ { P }$ and the maximum eigenvalue of the Laplacian matrix L . This indicates that when $\\tau < \\tau _ { \\mathrm { m a x } }$ , the characteristic roots of equation (21) are located in the lefthalf plane of the complex plane, the system is stable, providing a clear constraint for the controller parameter design.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_24"
+        },
+        {
+          "block_id": "block_93",
+          "type": "paragraph",
+          "text": "In summary, when the CTD is less than the CTD margin, the designed controller can achieve the control objectives 1 and 2. The above conclusions indicate that they provide clear constraints for controller parameter design.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_9.block_25"
+        }
+      ]
+    },
+    {
+      "section_id": "section_10",
+      "heading": "IV. SIMULATION",
+      "level": 2,
+      "page_range": [
+        3,
+        4
+      ],
+      "blocks": [
+        {
+          "block_id": "block_94",
+          "type": "paragraph",
+          "text": "In this section, we utilize an AC islanded MG model on the Matlab/Simulink R2023b platform for simulation to verify the effectiveness, robustness of the DSC algorithm. The MG system consists of five DGs, six loads (including five fixed loads and one switchable load), and transmission lines. The relevant parameters of the MG are shown in TABLE I. The corresponding MG structure and communication topology are shown in Fig. 2. Only DG 1 can receive the reference signal, with a system frequency of $f ^ { \\mathrm { r e f } } = 5 0$ . Meanwhile, the corresponding Laplacian matrix  and pinning matrix B are as follows:",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_10.block_0"
+        },
+        {
+          "block_id": "block_95",
+          "type": "equation",
+          "text": "$$\n\\begin{array} { r } { \\mathrm { L } = \\left[ \\begin{array} { c c c c c } { 2 } & { - 1 } & { 0 } & { 0 } & { - 1 } \\\\ { - 1 } & { 2 } & { - 1 } & { 0 } & { 0 } \\\\ { 0 } & { - 1 } & { 2 } & { - 1 } & { 0 } \\\\ { 0 } & { 0 } & { - 1 } & { 2 } & { - 1 } \\\\ { - 1 } & { 0 } & { 0 } & { - 1 } & { 2 } \\end{array} \\right] , ~ B = \\left[ \\begin{array} { c c c c c } { 1 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\end{array} \\right] . } \\end{array}\n$$",
+          "latex": "$$\n\\begin{array} { r } { \\mathrm { L } = \\left[ \\begin{array} { c c c c c } { 2 } & { - 1 } & { 0 } & { 0 } & { - 1 } \\\\ { - 1 } & { 2 } & { - 1 } & { 0 } & { 0 } \\\\ { 0 } & { - 1 } & { 2 } & { - 1 } & { 0 } \\\\ { 0 } & { 0 } & { - 1 } & { 2 } & { - 1 } \\\\ { - 1 } & { 0 } & { 0 } & { - 1 } & { 2 } \\end{array} \\right] , ~ B = \\left[ \\begin{array} { c c c c c } { 1 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\\\ { 0 } & { 0 } & { 0 } & { 0 } & { 0 } \\end{array} \\right] . } \\end{array}\n$$",
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_10.block_1"
+        },
+        {
+          "block_id": "block_96",
+          "type": "paragraph",
+          "text": "By taking $m _ { \\it f } = 5 0 \\ , \\ m _ { \\it P } = 5 0$ , and using Equation (25) , the CTD margin of the frequency controller $\\tau _ { \\operatorname* { m a x } } \\left( f \\right) = 7 . 6$ and the CTD margin of the active power controller $\\tau _ { \\mathrm { m a x } } \\left( P \\right) = 8 . 7$ . For convenience, we take $\\tau _ { \\operatorname* { m a x } } \\left( f \\right)$ as the global CTD margin.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 3,
+          "evidence_ref": "section_10.block_2"
+        },
+        {
+          "block_id": "block_97",
+          "type": "table",
+          "text": "TABLE I. PARAMETERS OF THE MG Notations. $V _ { d c }$ represents the internal DC-bus voltage of DGs; $R _ { c }$ and $L _ { c }$ are the connector resistance and inductance between DGs and the bus; $R _ { f }$ , $L _ { f }$ and $C _ { f }$ are the filter parameters within DGs; $R _ { L }$ and $L _ { \\ L _ { L } }$ represent the line resistance and inductance respectively.",
+          "latex": null,
+          "table_cells": null,
+          "html": "<table><tr><td></td><td>DG1</td><td>DG2</td><td>DG3</td><td>DG4</td><td>DG5</td></tr><tr><td> $V _ { d c } ( \\mathrm { V } )$ </td><td></td><td></td><td>700.0</td><td></td><td></td></tr><tr><td> $k ^ { f } \\times 1 0 ^ { - 5 }$ </td><td>6.0</td><td>6.0</td><td>6.0</td><td>6.0</td><td>6.0</td></tr><tr><td> $k ^ { P } \\times 1 0 ^ { - 3 }$ </td><td>4.2</td><td>4.2</td><td>4.2</td><td>4.2</td><td>4.2</td></tr><tr><td> $R _ { c } \\left( \\Omega \\right)$ </td><td></td><td></td><td>0.05</td><td></td><td></td></tr><tr><td> $L _ { c } \\left( \\mathrm { m H } \\right)$   $R _ { f } \\left( \\Omega \\right)$ </td><td></td><td></td><td>0.35</td><td></td><td></td></tr><tr><td></td><td></td><td></td><td>0.10</td><td></td><td></td></tr><tr><td> $L _ { f } \\left( \\mathrm { m H } \\right)$ </td><td></td><td></td><td>3.50</td><td></td><td></td></tr><tr><td> $C _ { f } \\left( \\mu \\mathrm { F } \\right)$ </td><td></td><td></td><td>50.0</td><td></td><td></td></tr><tr><td></td><td>Load 1</td><td>Load 2</td><td>Load 3</td><td>Load</td><td>Load 6</td></tr><tr><td>P(kW)</td><td>12.0</td><td>10.0</td><td>8.5</td><td>4&amp;5 15.0</td><td>16.0</td></tr><tr><td>Q(kVar)</td><td>6.0</td><td>5.5</td><td>5.2</td><td>6.5</td><td>12.0</td></tr><tr><td></td><td>Line 1</td><td>Line 2</td><td></td><td>Line 3</td><td>Line 4</td></tr><tr><td> $R _ { L } \\left( \\Omega \\right)$ </td><td></td><td></td><td></td><td></td><td></td></tr><tr><td> $L _ { L } ( \\mathrm { m H } )$ </td><td></td><td></td><td>0.10</td><td></td><td></td></tr></table>",
+          "caption": "TABLE I. PARAMETERS OF THE MG Notations. $V _ { d c }$ represents the internal DC-bus voltage of DGs; $R _ { c }$ and $L _ { c }$ are the connector resistance and inductance between DGs and the bus; $R _ { f }$ , $L _ { f }$ and $C _ { f }$ are the filter parameters within DGs; $R _ { L }$ and $L _ { \\ L _ { L } }$ represent the line resistance and inductance respectively.",
+          "image_path": null,
+          "page_idx": 4,
+          "evidence_ref": "section_10.block_3"
+        },
+        {
+          "block_id": "block_98",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/098a3f3e66ae51f44c3374435600d005c538c6cae2e44951d23eacf8ffd60b11.jpg",
+          "page_idx": 4,
+          "evidence_ref": "section_10.block_4"
+        }
+      ]
+    },
+    {
+      "section_id": "section_11",
+      "heading": "Scenario 1: Control Performance without CTDs.",
+      "level": 2,
+      "page_range": [
+        4,
+        4
+      ],
+      "blocks": [
+        {
+          "block_id": "block_99",
+          "type": "paragraph",
+          "text": "As shown in Fig. 3, in the scenario without CTDs, the system operates only relying on droop control in the initial 3 s . At the , the DSC is enabled. This controller can coordinate each DG to achieve frequency restoration and active power sharing, thus verifying the effectiveness of the DSC. To further verify the robustness, it is set that Load 6 is disconnected at  and reconnected at , so as to simulate the load-mutation condition.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 4,
+          "evidence_ref": "section_11.block_0"
+        },
+        {
+          "block_id": "block_100",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/2c18b29e460a0ca273466ea067f338db1afdb85b40ffef670c3a88a4ee618a10.jpg",
+          "page_idx": 4,
+          "evidence_ref": "section_11.block_1"
+        },
+        {
+          "block_id": "block_101",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/f1adad64e4c39d38e02cc76c79753f0b608b3102700705d4d7e426cc37c85786.jpg",
+          "page_idx": 4,
+          "evidence_ref": "section_11.block_2"
+        },
+        {
+          "block_id": "block_102",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/73797b0a44ac21924ad1cfe6985243cb46b3e33cf031ef4a7f6eb457a2c391bc.jpg",
+          "page_idx": 4,
+          "evidence_ref": "section_11.block_3"
+        },
+        {
+          "block_id": "block_103",
+          "type": "paragraph",
+          "text": "The simulation results show that when the system operates solely under droop control in the first , active power sharing is achieved, but there is a significant deviation in frequency. After the secondary control is activated, the system frequency and active power quickly converge to the rated values within , which verifies the effectiveness of DSC for frequency restoration and active power sharing. When Load 6 is disconnected at and reconnected at , the active power of each DG is redistributed within .s The frequency returns to stability within after a brief deviation, indicating that the algorithm has strong adaptability to load changes, can effectively maintain power balance and frequency stability, and demonstrates good robustness.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 4,
+          "evidence_ref": "section_11.block_4"
+        }
+      ]
+    },
+    {
+      "section_id": "section_12",
+      "heading": "Scenario 2: Considering the Influence of CTDs.",
+      "level": 2,
+      "page_range": [
+        4,
+        5
+      ],
+      "blocks": [
+        {
+          "block_id": "block_104",
+          "type": "paragraph",
+          "text": "A CTD variable is introduced under the same conditions as in Scenario 1. Fig. 4 and Fig. 5 illustrate the operation status of the system when the CTD is less than the theoretical CTD margin, while Fig. 6 shows the situation when the CTD exceeds this margin.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 4,
+          "evidence_ref": "section_12.block_0"
+        },
+        {
+          "block_id": "block_105",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/e5245d1b20888fe72ab697a3e9dbc3ea47af873f94e6bd6e45ee6655634efe55.jpg",
+          "page_idx": 4,
+          "evidence_ref": "section_12.block_1"
+        },
+        {
+          "block_id": "block_106",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/dc178bee8275deb3a60f007700c676d433a3c048f41955926ae20b32b1f1ece7.jpg",
+          "page_idx": 4,
+          "evidence_ref": "section_12.block_2"
+        },
+        {
+          "block_id": "block_107",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/1829e21d321fd392e6b3e4230c98b1b1cdf135fced441593f1ec67d7d118af4c.jpg",
+          "page_idx": 4,
+          "evidence_ref": "section_12.block_3"
+        },
+        {
+          "block_id": "block_108",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/eaebc8e87d4a72e8a23970438f20ed434c8b597661fdd34df8522af5d0e06270.jpg",
+          "page_idx": 5,
+          "evidence_ref": "section_12.block_4"
+        },
+        {
+          "block_id": "block_109",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/06908bebce5f5dd5cdc8678082f701d3e9e7e73d29bee05e228d660de53d56b0.jpg",
+          "page_idx": 5,
+          "evidence_ref": "section_12.block_5"
+        },
+        {
+          "block_id": "block_110",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/1fd7ca3e030d738570d31c194c80a0aeff9c02fd6676f5cb2fb01d693cfff571.jpg",
+          "page_idx": 5,
+          "evidence_ref": "section_12.block_6"
+        },
+        {
+          "block_id": "block_111",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/7d12ac284644a9c807a841bd07c76647d56b2352204c9d278acdf2a0eb2bb6fa.jpg",
+          "page_idx": 5,
+          "evidence_ref": "section_12.block_7"
+        },
+        {
+          "block_id": "block_112",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/9641e842a0f510abb37451ea4198b8cc65f246990d0c207c9f8fbb942a8b1417.jpg",
+          "page_idx": 5,
+          "evidence_ref": "section_12.block_8"
+        },
+        {
+          "block_id": "block_113",
+          "type": "paragraph",
+          "text": "The results indicate that after introducing the CTD variable, when the delay is less than the theoretical CTD margin ( ), as depicted in Fig. 4 and Fig. 5, although the active power adjustment and frequency restoration time increase slightly compared to the no-delay scenario, the system does not exhibit oscillations or lose control and can still operate stably. This validates the adaptability and tolerance of the algorithm within the theoretical CTD margin. As shown in Fig. 6, when the CTD exceeds the theoretical margin, the system stability decreases significantly, the power oscillation intensifies, and the frequency restoration time prolongs, suggesting that  is the critical threshold for maintaining system stability, which aligns with the theoretically derived CTD margin.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 5,
+          "evidence_ref": "section_12.block_9"
+        }
+      ]
+    },
+    {
+      "section_id": "section_13",
+      "heading": "Scenario 3: Plug-and-Play Experiment.",
+      "level": 2,
+      "page_range": [
+        5,
+        5
+      ],
+      "blocks": [
+        {
+          "block_id": "block_114",
+          "type": "paragraph",
+          "text": "As shown in Fig. 7, the secondary control is initiated at 3 s . DG 5 is cut out at  and re-inserted at  to simulate the variation of distributed DGs.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 5,
+          "evidence_ref": "section_13.block_0"
+        },
+        {
+          "block_id": "block_115",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/297bcd59486960d847b38f4ae0c3ef16a19dffca7e451fd2179b2a7b4694ddfe.jpg",
+          "page_idx": 5,
+          "evidence_ref": "section_13.block_1"
+        },
+        {
+          "block_id": "block_116",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/deab669e1a1e45412f6ae85132c035bb3492ef2422711ff7aa4a5a542bcd7b43.jpg",
+          "page_idx": 5,
+          "evidence_ref": "section_13.block_2"
+        },
+        {
+          "block_id": "block_117",
+          "type": "image",
+          "text": "",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": "",
+          "image_path": "images/44b570e3cedc489bd8ae3d46210ea5005dd9f3c37aad9d1fac9e13cecfd1d89e.jpg",
+          "page_idx": 5,
+          "evidence_ref": "section_13.block_3"
+        },
+        {
+          "block_id": "block_118",
+          "type": "paragraph",
+          "text": "The simulation results show that, as depicted in Fig. 7, after DG 5 is cut out at  , the active power of other DGs is rapidly redistributed. Although the frequency deviates slightly, it remains within a controllable range. At  , when DG 5 is re-inserted, the system quickly adapts: active power sharing is readjusted and frequency recovers steadily. This demonstrates that the control strategy can effectively cope with the plug-and-play of DGs, maintain active power balance and frequency stability, thus verifying the adaptability and reliability of the control method for changes in DGs.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 5,
+          "evidence_ref": "section_13.block_4"
+        }
+      ]
+    },
+    {
+      "section_id": "section_14",
+      "heading": "V. CONCLUSIONS",
+      "level": 2,
+      "page_range": [
+        5,
+        5
+      ],
+      "blocks": [
+        {
+          "block_id": "block_119",
+          "type": "paragraph",
+          "text": "Aiming at the problems of frequency restoration, active power sharing and CTD in islanded MGs, this paper designs a DSC and verifies its effectiveness, robustness through theoretical analysis and simulation experiments. The main conclusions are as follows: By means of the design of a consensus protocol and reference tracking terms, the designed DSC achieves frequency restoration and active power sharing. It can quickly redistribute power and restore the frequency when load switching occurs, and maintain stable operation within a certain range of CTDs, verifying the robustness of the algorithm. When the CTDs exceed the theoretical margin, it will intensify power oscillations and prolong the frequency restoration time, indicating that this margin is a key threshold for maintaining stability and provides constraints for controller parameter design; through Scenario 3, the adaptability and reliability of the DSC for the plug-and-play of DGs are further verified. Compared with centralized control, the DSC avoids the problems of singlepoint failure and poor plug-and-play compatibility, and can more flexibly and efficiently adapt to the dynamic connection and disconnection of DGs, ensuring the stable operation of the MGs.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 5,
+          "evidence_ref": "section_14.block_0"
+        },
+        {
+          "block_id": "block_120",
+          "type": "paragraph",
+          "text": "Although the DSC strategy proposed in this paper has been verified by theoretical analysis and simulation to confirm its robustness to CTDs, loads and DGs variations, as well as the effectiveness of its control performance, multiple challenges still exist in practical engineering implementation, such as communication failures caused by malicious cyberattacks, limitations imposed by high deployment and maintenance costs, etc. In the future, the comprehensive impacts of various factors can be deeply explored to more comprehensively enhance the adaptability and reliability of this control strategy in practical engineering.",
+          "latex": null,
+          "table_cells": null,
+          "html": null,
+          "caption": null,
+          "image_path": null,
+          "page_idx": 5,
+          "evidence_ref": "section_14.block_1"
+        }
+      ]
+    },
+    {
+      "section_id": "section_15",
+      "heading": "REFERENCES",
+      "level": 2,
+      "page_range": null,
+      "blocks": []
+    }
+  ],
+  "references": []
+}

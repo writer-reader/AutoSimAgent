@@ -1,0 +1,4 @@
+# core.yaml —— 核心配置（日志）
+version: "1.0"
+log_level: "INFO"
+log_path: "data/logs/control-agent.log"

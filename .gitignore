@@ -1,0 +1,14 @@
+# 环境变量与密钥
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+
+# 运行产物
+data/logs/
+data/checkpoints/

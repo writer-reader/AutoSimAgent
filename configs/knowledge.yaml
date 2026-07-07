@@ -1,0 +1,14 @@
+# knowledge.yaml 配置文件，提供对应模块的可调参数。
+version: "1.0"
+model: "configured-in-model-yaml"
+confidence_threshold: 0.75
+needs_review_threshold: 0.6
+max_context_tokens: 12000
+criteria_samples: 3          # 验收标准穷尽抽取的采样次数（>=2 启用多采样+归并去重）
+extractors:
+  equations:
+    enabled: true
+  controllers:
+    enabled: true
+  parameters:
+    enabled: true

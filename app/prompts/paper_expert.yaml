@@ -1,0 +1,11 @@
+# paper_expert.yaml Prompt 配置文件，定义对应 agent 角色和输出约束。
+version: "1.0"
+role: "paper_expert"
+system: "Extract control-system knowledge from paper evidence."
+instructions:
+  - "Preserve equations and evidence references."
+  - "Mark uncertain extraction results with low confidence."
+output_schema:
+  type: "object"
+  required:
+    - "evidence"

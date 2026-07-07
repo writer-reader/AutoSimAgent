@@ -1,0 +1,26 @@
+# graph.yaml 配置文件，提供对应模块的可调参数。
+version: "1.0"
+
+# Checkpointer 持久化后端（memory=进程内，重启丢失；sqlite=持久化，支持 interrupt/resume 跨重启）
+checkpoint_backend: "sqlite"
+checkpoint_path: "data/checkpoints/langgraph.sqlite"
+
+# 保留旧字段（未被读取，细化见下方 l1-l4_budget）
+max_retries_per_node: 2
+
+# 人工审批等待超时（秒）
+approval_timeout_s: 3600
+
+# verify 通过后是否要求人工确认（true=开启，false=自动通过）
+require_verification_approval: false
+
+# 分层重试预算
+l1_budget: 2     # 瞬时错误（超时/MCP busy）重试次数
+l2_budget: 2     # 代码级错误（语法/运行时）重试次数
+l3_budget: 1     # 方案级错误（不收敛/架构错）回滚次数
+l4_budget: 1     # 知识级错误（缺参数/抽错公式）重抽次数
+calib_budget: 4  # 结果校准最大轮数（跑通但指标不达标）
+
+# SSE 事件队列与任务生命周期
+sse_queue_maxsize: 256   # 每任务 SSE 事件队列最大条数
+task_ttl_s: 7200         # 已终止任务保留秒数（超时后懒清理）

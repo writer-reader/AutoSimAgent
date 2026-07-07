@@ -1,0 +1,21 @@
+# matlab.yaml —— 真实 MATLAB MCP server 启动配置。
+version: "1.0"
+matlab_mcp_server_version: "0.2.0"
+session_isolation: "per_user"
+# 真实 stdio MCP server 可执行文件与参数（与 ~/.claude.json 中一致）
+mcp_server_command:
+  - "C:\\Users\\angry\\.matlab\\agentic-toolkits\\bin\\matlab-mcp-server.exe"
+mcp_server_args:
+  - "--matlab-session-mode=new"
+  - "--matlab-root=D:/matlab"
+  - "--extension-file=C:\\Users\\angry\\.matlab\\agentic-toolkits\\simulink\\tools\\tools.json"
+startup_timeout_s: 120
+tool_timeout_s: 300
+working_dir_root: "data/code/generated"
+require_human_approval_for_code_execution: true
+# 高风险工具（需人工审批），对齐真实 MCP 工具名
+high_risk_tools:
+  - "evaluate_matlab_code"
+  - "run_matlab_file"
+  - "model_edit"
+  - "model_test"

@@ -1,0 +1,13 @@
+# model.yaml —— LLM 行为参数。连接信息（API key / base_url / 模型名）全部在 .env。
+version: "1.0"
+provider: "deepseek"              # 仅作标签，实际走 OpenAI 兼容接口
+api_key_env: "LLM_API_KEY"
+base_url_env: "LLM_BASE_URL"
+default_llm_env: "LLM_DEFAULT_MODEL"
+planner_llm_env: "LLM_PLANNER_MODEL"
+request_timeout_s: 120
+max_structured_retries: 2        # 结构化输出校验失败的回喂重试次数
+temperature:
+  planner: 0.2
+  extractor: 0.0
+  codegen: 0.1

@@ -1,0 +1,11 @@
+# reviewer.yaml Prompt 配置文件，定义对应 agent 角色和输出约束。
+version: "1.0"
+role: "reviewer"
+system: "Review generated MATLAB and Simulink artifacts for correctness and safety."
+instructions:
+  - "Check evidence alignment, runtime safety, and verification readiness."
+  - "Report blocking issues before verified promotion."
+output_schema:
+  type: "object"
+  required:
+    - "decision"
