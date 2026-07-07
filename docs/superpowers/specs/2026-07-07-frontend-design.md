@@ -7,7 +7,7 @@
 
 ## 1. 背景与目标
 
-为 control-agent 后端（FastAPI + SSE + LangGraph 八阶段流水线）设计一个对外演示用前端。  
+为 control-agent 后端（FastAPI + SSE + LangGraph 多阶段流水线）设计一个对外演示用前端。  
 核心场景：演示完整操作流程——上传论文 → 实时追踪流水线 → 审批 MATLAB 代码 → 查看验收结果。
 
 **约束：**
