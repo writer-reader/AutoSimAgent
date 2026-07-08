@@ -154,7 +154,9 @@ class LlmKnowledgeExtractor:
         if criteria_samples <= 1:
             criteria = main_criteria
         else:
-            criteria = self.extract_criteria(paper.paper_id, text, samples=criteria_samples)
+            sampled = self.extract_criteria(paper.paper_id, text, samples=criteria_samples)
+            # 穷尽采样失败（模型未响应 exhaustive prompt）时 fallback 到主抽取结果
+            criteria = sampled if sampled else main_criteria
         return eqs, ctrls, params, criteria
 
     # extract_criteria 函数，穷尽多采样 + LLM 归并去重，产出稳定全覆盖的验收标准。
