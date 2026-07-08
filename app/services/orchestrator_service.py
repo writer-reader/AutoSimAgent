@@ -311,7 +311,8 @@ class OrchestratorService:
 
         result = {
             "verification": verification,
-            "verdict": final.verdict,
+            # verdict 前端期望 string|null，从 dict 中取 summary 字段
+            "verdict": (final.verdict or {}).get("summary") or None,
             "code_paths": final.generated_code_paths,
             "calib_rounds": final.retries.calib,
             "tool_calls": len(final.tool_results),
