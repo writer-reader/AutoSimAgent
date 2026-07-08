@@ -143,6 +143,24 @@ class RealExecutor:
         code_path = outdir / f"gen_{state.tool_call_seq}.m"
         code_path.write_text(code, encoding="utf-8")
         state.generated_code_paths.append(str(code_path))
+
+        # ── 静态检查：有 error 级问题则直接返回失败，不执行 ──────────────
+        try:
+            check_result = self.matlab.check_code(str(code_path))
+            if check_result.ok and check_result.stdout:
+                import json as _json
+                issues = _json.loads(check_result.stdout).get("code_issues", [])
+                errors = [i for i in issues if i.get("severity") == "error"]
+                if errors:
+                    err_lines = "\n".join(
+                        f"  Line {i.get('line', '?')}: {i.get('description', '')}"
+                        for i in errors
+                    )
+                    before = {p.name for p in outdir.iterdir() if p.is_file()}
+                    return False, "", f"[静态检查] MATLAB 语法错误，已拦截（未执行）：\n{err_lines}", []
+        except Exception:
+            pass  # 静态检查失败不阻断流程，继续执行
+
         before = {p.name for p in outdir.iterdir() if p.is_file()}
         result = self.matlab.run_file(str(code_path))
         artifacts = self._scan_artifacts(outdir, before)
