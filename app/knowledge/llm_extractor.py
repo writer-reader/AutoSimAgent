@@ -99,12 +99,17 @@ class _CriteriaOnly(BaseModel):
 
 # 穷尽式验收标准抽取（专用 pass，治单次抽取"只挑子集"的非确定性）。
 CRITERIA_EXHAUSTIVE_PROMPT = (
-    "你是控制论文复现的验收专家。请**穷尽列出**论文中所有可用仿真定量验证的声称/命题，"
-    "务必完整、不要只挑几条、不要遗漏。涵盖但不限于：稳态误差与收敛性、恢复/settling/restoration 时间、"
-    "超调、稳定性与延迟/增益裕度行为（低于裕度稳、高于裕度失稳）、鲁棒性、即插即用、功率/频率分配等"
-    "一切论文明确声称的可测结果。每条给出 metric(英文蛇形机读名)、description、"
-    "relation(approx_zero/approx/less_than/greater_than/equals/converges/decreasing/stable/qualitative)、"
-    "expected(可空)、tolerance(可空)、evidence_ref、confidence。只输出 JSON。"
+    "你是控制论文复现专家。从下面的论文中，找出所有**可用仿真代码定量验证**的声称结果。\n"
+    "每条给出：metric（英文蛇形指标名）、description（命题描述）、"
+    "relation（approx_zero/approx/less_than/greater_than/equals/converges/decreasing/stable/qualitative）、"
+    "expected（期望数值，可null）、tolerance（容差，可null）、evidence_ref（段落锚点）、confidence（0~1）。\n\n"
+    "【典型可验证命题】：稳态频率/电压误差、功率分配误差、settling时间、超调量、"
+    "稳定裕度临界值（如'延迟小于τ_max时稳定'）、鲁棒性指标等。\n\n"
+    "示例输出格式：\n"
+    '{"criteria": [{"metric": "freq_error_final", "description": "所有节点频率误差稳态收敛到零", '
+    '"relation": "approx_zero", "expected": 0.0, "tolerance": null, '
+    '"evidence_ref": "section_3.block_2", "confidence": 0.9}]}\n\n'
+    "尽量多找，找不确定的可以把confidence设低（0.5以下）。不必穷尽，有多少写多少。只输出JSON。"
 )
 
 # 归并去重：把多次采样的候选合并成稳定、全覆盖、不重复的清单。
