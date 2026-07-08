@@ -28,7 +28,14 @@
 }
 
 @layer base {
+  html {
+    font-size: 15px;          /* 整体上调基准字号（Tailwind默认16px偏小） */
+  }
   * { @apply border-border; }
-  body { @apply bg-background text-foreground; }
+  body {
+    @apply bg-background text-foreground;
+    line-height: 1.65;        /* 行高宽松，提升可读性 */
+    -webkit-font-smoothing: antialiased;
+  }
 }
 
