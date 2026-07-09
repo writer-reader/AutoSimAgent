@@ -90,7 +90,6 @@ export default function App() {
         <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <span className="font-semibold tracking-tight text-foreground">AutoSimAgent</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="后端在线" />
           </div>
           <StepIndicator current={step} />
           <ThemeToggle />
