@@ -12,3 +12,22 @@ venv/
 # 运行产物
 data/logs/
 data/checkpoints/
+data/papers/
+data/mineru/
+data/code/generated/
+data/knowledge/
+
+# 构建产物
+build/
+
+# Claude Code 本地配置
+.claude/settings.local.json
+
+# 大型二进制文件
+*.pdf
+
+# 内部文档与 AI 工具配置
+重构方案.md
+env_variable_analysis.md
+docs/superpowers/
+.claude/skills/
