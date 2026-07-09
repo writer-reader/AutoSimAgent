@@ -5,7 +5,6 @@ import { StageProgress } from '@/components/StageProgress'
 import { EventLog } from '@/components/EventLog'
 import { ApprovalDialog } from '@/components/ApprovalDialog'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 
 export function Step2Pipeline() {
   const taskId     = useAppStore(s => s.taskId)
