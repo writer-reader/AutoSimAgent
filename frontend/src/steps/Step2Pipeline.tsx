@@ -30,14 +30,24 @@ export function Step2Pipeline() {
     <div className="max-w-3xl mx-auto mt-8 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-slate-800">流水线运行中</h2>
-        <span className={cn(
-          'text-sm font-medium px-2 py-0.5 rounded-full',
-          isFailed   && 'bg-red-100 text-red-700',
-          isWaiting  && 'bg-orange-100 text-orange-700',
-          !isFailed && !isWaiting && 'bg-blue-100 text-blue-700',
-        )}>
-          {isFailed ? '❌ 失败' : isWaiting ? '⚠️ 等待审批' : '● 运行中'}
-        </span>
+        {isFailed && (
+          <span className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400/70" />
+            失败
+          </span>
+        )}
+        {isWaiting && (
+          <span className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70 animate-pulse" />
+            等待审批
+          </span>
+        )}
+        {!isFailed && !isWaiting && (
+          <span className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400/70 animate-pulse" />
+            运行中
+          </span>
+        )}
       </div>
 
       {stageLabel && !isFailed && (
@@ -52,7 +62,7 @@ export function Step2Pipeline() {
 
       {/* 失败态 */}
       {isFailed && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-4 space-y-2">
+        <div className="rounded-xl bg-rose-50/60 dark:bg-rose-950/30 p-4 space-y-2">
           <p className="text-sm text-red-700 font-medium">流水线失败</p>
           <p className="text-sm text-red-600">{step2Error}</p>
           <Button variant="outline" size="sm" onClick={handleRestart}>

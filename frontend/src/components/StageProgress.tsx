@@ -20,14 +20,14 @@ export function StageProgress() {
   const currentIdx = stages.indexOf(currentStage ?? '')
 
   return (
-    <div className="flex items-center gap-1 overflow-x-auto py-2 px-4">
+    <div className="flex items-center gap-2 overflow-x-auto py-2 px-4">
       {stages.map((stage, idx) => {
         const isDone     = idx < currentIdx
         const isCurrent  = idx === currentIdx
         const isApproval = stage === 'request_approval'
 
         return (
-          <div key={stage} className="flex items-center gap-1 shrink-0">
+          <div key={stage} className="flex items-center gap-2 shrink-0">
             {idx > 0 && (
               <div
                 className={cn(
@@ -40,7 +40,7 @@ export function StageProgress() {
               <div
                 className={cn(
                   'w-3 h-3 rounded-full border-2 transition-all',
-                  isDone    && 'bg-slate-500 border-slate-500',
+                  isDone    && 'bg-slate-300 border-slate-300',
                   isCurrent && !isApproval && 'bg-blue-500 border-blue-500 ring-2 ring-blue-200 animate-pulse',
                   isCurrent && isApproval  && 'bg-orange-500 border-orange-500 ring-2 ring-orange-200 animate-pulse',
                   !isDone && !isCurrent    && 'bg-white border-slate-300',
@@ -48,7 +48,7 @@ export function StageProgress() {
               />
               <span
                 className={cn(
-                  'text-[10px] whitespace-nowrap',
+                  'text-xs whitespace-nowrap',
                   isCurrent && isApproval
                     ? 'text-orange-600 font-semibold'
                     : 'text-slate-500',

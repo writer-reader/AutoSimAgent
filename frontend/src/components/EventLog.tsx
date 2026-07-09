@@ -95,7 +95,7 @@ export function EventLog() {
           连接已中断，正在重连…
         </div>
       )}
-      <div className="h-64 overflow-y-auto p-3 space-y-1 font-mono bg-slate-50 rounded-md border">
+      <div className="min-h-[14rem] max-h-[26rem] overflow-y-auto p-4 space-y-1.5 text-sm bg-slate-50/80 dark:bg-zinc-800/50 rounded-xl">
         {log.map(entry => (
           <EventRow key={entry.id} event={entry.event} />
         ))}
