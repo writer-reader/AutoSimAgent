@@ -66,7 +66,12 @@ class LLMClient:
                 **kwargs,
             )
         except Exception as exc:  # 网络/服务端错误：标记可重试，交由上层错误路由
-            raise LLMError("llm_request_failed", "LLM request failed", {"error": str(exc)}, retryable=True) from exc
+            raise LLMError("llm_request_failed", "LLM request failed", {
+                "error": str(exc),
+                "type": type(exc).__name__,
+                "status_code": getattr(getattr(exc, "response", None), "status_code", None),
+                "body": str(getattr(getattr(exc, "response", None), "text", ""))[:500],
+            }, retryable=True) from exc
         return resp.choices[0].message.content or ""
 
     # structured 函数，强制 JSON 输出并用 Pydantic 校验；失败则带报错回喂重试。
@@ -92,7 +97,12 @@ class LLMClient:
                     response_format={"type": "json_object"},
                 )
             except Exception as exc:
-                raise LLMError("llm_request_failed", "LLM request failed", {"error": str(exc)}, retryable=True) from exc
+                raise LLMError("llm_request_failed", "LLM request failed", {
+                    "error": str(exc),
+                    "type": type(exc).__name__,
+                    "status_code": getattr(getattr(exc, "response", None), "status_code", None),
+                    "body": str(getattr(getattr(exc, "response", None), "text", ""))[:500],
+                }, retryable=True) from exc
             content = resp.choices[0].message.content or ""
             try:
                 return schema.model_validate(json.loads(content))
