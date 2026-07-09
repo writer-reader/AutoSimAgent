@@ -81,7 +81,7 @@ export function Step1Import() {
 
   return (
     <div className="max-w-lg mx-auto mt-16 space-y-6">
-      <h1 className="text-2xl font-semibold text-slate-800">导入论文</h1>
+      <h1 className="text-2xl font-semibold text-foreground">导入论文</h1>
 
       {/* 拖拽提示区 */}
       <div

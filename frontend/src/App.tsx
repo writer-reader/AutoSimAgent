@@ -86,7 +86,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <header className="border-b px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3 flex-1">
           <span className="text-slate-800 font-semibold tracking-tight">control-agent</span>
           <span className="w-2 h-2 rounded-full bg-green-500" title="后端在线" />
