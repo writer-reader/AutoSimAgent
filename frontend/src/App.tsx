@@ -6,6 +6,7 @@ import { Step1Import } from '@/steps/Step1Import'
 import { Step2Pipeline } from '@/steps/Step2Pipeline'
 import { Step3Result } from '@/steps/Step3Result'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const SESSION_KEY = 'control_agent_task_id'
 
@@ -83,19 +84,21 @@ export default function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1">
           <span className="text-slate-800 font-semibold tracking-tight">control-agent</span>
           <span className="w-2 h-2 rounded-full bg-green-500" title="后端在线" />
         </div>
         <StepIndicator current={step} />
-        <div className="w-32" /> {/* 占位，保持步骤条居中 */}
+        <div className="flex-1 flex justify-end">
+          <ThemeToggle />
+        </div>
       </header>
 
       {/* 内容区 */}
-      <main className="px-6 py-8">
+      <main key={step} className="px-6 py-8 animate-in fade-in duration-150">
         {step === 1 && <Step1Import />}
         {step === 2 && <Step2Pipeline />}
         {step === 3 && <Step3Result />}
