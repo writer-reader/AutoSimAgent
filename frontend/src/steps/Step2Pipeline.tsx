@@ -26,32 +26,34 @@ export function Step2Pipeline() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto mt-8 space-y-4">
+    <div className="space-y-5">
+      {/* 页面标题 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-foreground">流水线运行中</h2>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">流水线运行中</h1>
+          {stageLabel && !isFailed && (
+            <p className="mt-0.5 text-sm text-muted-foreground">{stageLabel}</p>
+          )}
+        </div>
         {isFailed && (
-          <span className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-400/70" />
             失败
           </span>
         )}
         {isWaiting && (
-          <span className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70 animate-pulse" />
             等待审批
           </span>
         )}
         {!isFailed && !isWaiting && (
-          <span className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400/70 animate-pulse" />
             运行中
           </span>
         )}
       </div>
-
-      {stageLabel && !isFailed && (
-        <p className="text-sm text-slate-500">{stageLabel}</p>
-      )}
 
       {/* 阶段进度条 */}
       <StageProgress />
@@ -70,7 +72,6 @@ export function Step2Pipeline() {
         </div>
       )}
 
-      {/* 审批弹层（自包含，读 store 决定显示） */}
       <ApprovalDialog />
     </div>
   )

@@ -80,56 +80,62 @@ export function Step1Import() {
   }
 
   return (
-    <div className="max-w-lg mx-auto mt-16 space-y-6">
-      <h1 className="text-2xl font-semibold text-foreground">导入论文</h1>
-
-      {/* 拖拽提示区 */}
-      <div
-        ref={dropRef}
-        onDrop={handleDrop}
-        onDragOver={e => e.preventDefault()}
-        className="border-2 border-dashed border-slate-300 rounded-xl py-10 px-8 text-center text-slate-400 hover:border-slate-400 transition-colors cursor-pointer"
-        onClick={() => document.getElementById('path-input')?.focus()}
-      >
-        <FileUp className="w-8 h-8 text-slate-300 mx-auto mb-3" strokeWidth={1.5} />
-        <p className="text-sm">拖拽 PDF 到此处（文件名将填入下方）</p>
-        <p className="text-xs mt-1 text-slate-300">浏览器限制无法获取完整路径，请在下方手动确认</p>
+    <div className="space-y-8">
+      {/* 页面标题 */}
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">导入论文</h1>
+        <p className="mt-1 text-sm text-muted-foreground">粘贴本地 PDF 路径，启动分析流水线</p>
       </div>
 
-      {/* 路径输入 */}
-      <div className="space-y-1.5">
-        <Label htmlFor="path-input">本地文件路径</Label>
-        <Input
-          id="path-input"
-          value={localPath}
-          onChange={e => setLocalPath(e.target.value)}
-          placeholder="C:\Users\...\paper.pdf"
-          disabled={loading}
-        />
-      </div>
-
-      {/* 错误提示：导入错误 */}
-      {importError && (
-        <p className="text-sm text-red-600">{importError}</p>
-      )}
-
-      {/* 错误提示：启动错误 + 重新启动按钮 */}
-      {startError && (
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-red-600">{startError}</p>
-          <Button size="sm" variant="outline" onClick={handleRetryStart} disabled={loading}>
-            重新启动
-          </Button>
+      <div className="space-y-4">
+        {/* 拖拽提示区 */}
+        <div
+          ref={dropRef}
+          onDrop={handleDrop}
+          onDragOver={e => e.preventDefault()}
+          className="border-2 border-dashed border-border rounded-xl py-10 px-8 text-center hover:border-muted-foreground/40 transition-colors cursor-pointer"
+          onClick={() => document.getElementById('path-input')?.focus()}
+        >
+          <FileUp className="w-7 h-7 text-muted-foreground/40 mx-auto mb-2.5" strokeWidth={1.5} />
+          <p className="text-sm text-muted-foreground">拖拽 PDF 到此处</p>
+          <p className="text-xs mt-1 text-muted-foreground/50">浏览器无法获取完整路径，请在下方手动输入</p>
         </div>
-      )}
 
-      <Button
-        onClick={handleSubmit}
-        disabled={loading || !localPath.trim()}
-        className="w-full"
-      >
-        {loading ? '处理中…' : '开始导入并运行'}
-      </Button>
+        {/* 路径输入 */}
+        <div className="space-y-1.5">
+          <Label htmlFor="path-input" className="text-sm font-medium">本地文件路径</Label>
+          <Input
+            id="path-input"
+            value={localPath}
+            onChange={e => setLocalPath(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+            placeholder="C:\Users\...\paper.pdf"
+            className="h-10"
+            disabled={loading}
+          />
+        </div>
+
+        {/* 错误提示 */}
+        {importError && (
+          <p className="text-sm text-destructive">{importError}</p>
+        )}
+        {startError && (
+          <div className="flex items-center gap-3">
+            <p className="text-sm text-destructive">{startError}</p>
+            <Button size="sm" variant="outline" onClick={handleRetryStart} disabled={loading}>
+              重新启动
+            </Button>
+          </div>
+        )}
+
+        <Button
+          onClick={handleSubmit}
+          disabled={loading || !localPath.trim()}
+          className="w-full h-10"
+        >
+          {loading ? '处理中…' : '开始导入并运行'}
+        </Button>
+      </div>
     </div>
   )
 }

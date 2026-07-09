@@ -55,43 +55,43 @@ export function Step3Result() {
   )
 
   return (
-    <div className="max-w-3xl mx-auto mt-8 space-y-6">
-      {/* Title */}
+    <div className="space-y-7">
+      {/* 标题 */}
       <div>
-        <h2 className={cn(
-          'text-2xl font-semibold',
-          isSuccess ? 'text-slate-800' : 'text-red-700',
+        <h1 className={cn(
+          'text-2xl font-semibold tracking-tight',
+          isSuccess ? 'text-foreground' : 'text-destructive',
         )}>
-          {isSuccess ? '✅ 流水线完成' : '❌ 流水线失败'}
-        </h2>
+          {isSuccess ? '流水线完成' : '流水线失败'}
+        </h1>
         {result?.verdict && (
-          <p className="text-sm text-slate-500 mt-1">{result.verdict}</p>
+          <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{result.verdict}</p>
         )}
       </div>
 
-      {/* Acceptance criteria */}
+      {/* 验收标准 */}
       {criteria.length > 0 && (
-        <section>
-          <h3 className="text-sm font-semibold text-slate-700 mb-2">验收标准</h3>
+        <section className="space-y-2">
+          <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">验收标准</h2>
           <div className="space-y-1.5">
             {criteria.map(c => {
               const res = criteriaMap[c.criteria_id]
               const passed = res?.passed
               return (
                 <div key={c.criteria_id} className={cn(
-                  'pl-3 border-l-2 text-sm',
-                  res === undefined && 'border-slate-200 dark:border-zinc-700',
+                  'pl-3 border-l-2 text-sm py-0.5',
+                  res === undefined && 'border-border',
                   passed === true  && 'border-emerald-300/60',
                   passed === false && 'border-rose-300/50',
                 )}>
                   <span className={cn(
-                    res === undefined && 'text-slate-400 dark:text-slate-500',
-                    passed === true   && 'text-slate-700 dark:text-slate-300',
-                    passed === false  && 'text-slate-400 dark:text-slate-500',
+                    res === undefined && 'text-muted-foreground',
+                    passed === true   && 'text-foreground',
+                    passed === false  && 'text-muted-foreground',
                   )}>
                     {c.description}
                     {res?.detail && (
-                      <span className="text-slate-400 ml-1">— {res.detail}</span>
+                      <span className="text-muted-foreground/60 ml-1.5 text-xs">{res.detail}</span>
                     )}
                   </span>
                 </div>
@@ -101,13 +101,13 @@ export function Step3Result() {
         </section>
       )}
 
-      {/* Generated code files */}
+      {/* 生成代码 */}
       {result?.code_paths?.map(fullPath => {
         const filename = fullPath.split(/[\\/]/).pop() ?? fullPath
         const content  = codeContent[filename]
         return (
-          <section key={filename}>
-            <h3 className="text-sm font-semibold text-slate-700 mb-2">{filename}</h3>
+          <section key={filename} className="space-y-2">
+            <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{filename}</h2>
             {content !== undefined ? (
               <CodePanel
                 language="matlab"
@@ -116,22 +116,22 @@ export function Step3Result() {
                 onDownload={() => handleDownload(filename, content)}
               />
             ) : (
-              <div className="text-sm text-slate-400 py-4 text-center">加载中…</div>
+              <div className="text-sm text-muted-foreground py-6 text-center">加载中…</div>
             )}
           </section>
         )
       })}
 
-      {/* Process details (collapsible) */}
+      {/* 过程详情 */}
       {result && (
         <Collapsible open={detailOpen} onOpenChange={setDetailOpen}>
           <CollapsibleTrigger asChild>
-            <button className="text-xs text-slate-400 hover:text-slate-600 underline">
+            <button className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
               {detailOpen ? '收起' : '展开'}过程详情
             </button>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="mt-2 text-xs text-slate-500 space-y-1 pl-2 border-l border-slate-200">
+            <div className="mt-2 text-xs text-muted-foreground space-y-1 pl-3 border-l border-border">
               <div>校准轮次：{result.calib_rounds}</div>
               <div>工具调用次数：{result.tool_calls}</div>
             </div>
@@ -139,7 +139,7 @@ export function Step3Result() {
         </Collapsible>
       )}
 
-      <Button variant="outline" onClick={handleRestart}>
+      <Button variant="outline" size="sm" onClick={handleRestart}>
         重新运行另一篇
       </Button>
     </div>

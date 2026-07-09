@@ -86,19 +86,19 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3 flex-1">
-          <span className="text-slate-800 font-semibold tracking-tight">control-agent</span>
-          <span className="w-2 h-2 rounded-full bg-green-500" title="后端在线" />
-        </div>
-        <StepIndicator current={step} />
-        <div className="flex-1 flex justify-end">
+      <header className="border-b">
+        <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="font-semibold tracking-tight text-foreground">control-agent</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="后端在线" />
+          </div>
+          <StepIndicator current={step} />
           <ThemeToggle />
         </div>
       </header>
 
-      {/* 内容区 */}
-      <main key={step} className="px-6 py-8 animate-in fade-in duration-150">
+      {/* 内容区 — 统一版心 */}
+      <main key={step} className="max-w-3xl mx-auto px-6 py-10 animate-in fade-in duration-150">
         {step === 1 && <Step1Import />}
         {step === 2 && <Step2Pipeline />}
         {step === 3 && <Step3Result />}
