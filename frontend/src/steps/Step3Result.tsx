@@ -78,12 +78,16 @@ export function Step3Result() {
               const res = criteriaMap[c.criteria_id]
               const passed = res?.passed
               return (
-                <div key={c.criteria_id} className="flex items-start gap-2 text-sm">
-                  <span className="mt-0.5 shrink-0">
-                    {res === undefined ? '⬜' : passed ? '✅' : '❌'}
-                  </span>
+                <div key={c.criteria_id} className={cn(
+                  'pl-3 border-l-2 text-sm',
+                  res === undefined && 'border-slate-200 dark:border-zinc-700',
+                  passed === true  && 'border-emerald-300/60',
+                  passed === false && 'border-rose-300/50',
+                )}>
                   <span className={cn(
-                    passed === false ? 'text-red-600' : 'text-slate-700'
+                    res === undefined && 'text-slate-400 dark:text-slate-500',
+                    passed === true   && 'text-slate-700 dark:text-slate-300',
+                    passed === false  && 'text-slate-400 dark:text-slate-500',
                   )}>
                     {c.description}
                     {res?.detail && (

@@ -1,5 +1,6 @@
 // frontend/src/steps/Step1Import.tsx
 import { useState, useRef } from 'react'
+import { FileUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -87,10 +88,10 @@ export function Step1Import() {
         ref={dropRef}
         onDrop={handleDrop}
         onDragOver={e => e.preventDefault()}
-        className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center text-slate-400 hover:border-slate-400 transition-colors cursor-pointer"
+        className="border-2 border-dashed border-slate-300 rounded-xl py-10 px-8 text-center text-slate-400 hover:border-slate-400 transition-colors cursor-pointer"
         onClick={() => document.getElementById('path-input')?.focus()}
       >
-        <div className="text-4xl mb-2">📄</div>
+        <FileUp className="w-8 h-8 text-slate-300 mx-auto mb-3" strokeWidth={1.5} />
         <p className="text-sm">拖拽 PDF 到此处（文件名将填入下方）</p>
         <p className="text-xs mt-1 text-slate-300">浏览器限制无法获取完整路径，请在下方手动确认</p>
       </div>
