@@ -36,7 +36,6 @@ export function Step2Pipeline() {
   const taskStatus    = useAppStore(s => s.taskStatus)
   const step2Error    = useAppStore(s => s.step2Error)
   const stageLabel    = useAppStore(s => s.currentStageLabel)
-  const startNewTask  = useAppStore(s => s.startNewTask)
   const setTaskStatus = useAppStore(s => s.setTaskStatus)
   const setStep2Error = useAppStore(s => s.setStep2Error)
   const clearStep2Error = useAppStore(s => s.clearStep2Error)
@@ -112,9 +111,6 @@ export function Step2Pipeline() {
                 <Button size="sm" onClick={handleResume} disabled={restoring}>
                   <RefreshCw className="w-3.5 h-3.5" /> {restoring ? '恢复中…' : '从断点恢复'}
                 </Button>
-                <Button variant="outline" size="sm" onClick={startNewTask} disabled={restoring}>
-                  新建任务
-                </Button>
               </div>
             </div>
           )}
@@ -132,9 +128,6 @@ export function Step2Pipeline() {
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleResume} disabled={restoring}>
                   <RefreshCw className="w-3.5 h-3.5" /> {restoring ? '恢复中…' : '从断点继续'}
-                </Button>
-                <Button variant="outline" size="sm" onClick={startNewTask} disabled={restoring}>
-                  新建任务
                 </Button>
               </div>
             </div>

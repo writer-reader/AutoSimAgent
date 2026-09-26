@@ -1,9 +1,8 @@
 // frontend/src/store/app.ts
 import { create } from 'zustand'
 import { api } from '@/api/client'
-import type { SseEvent, CriteriaItem, InterruptPayload, TaskResult, TaskListItem } from '@/types'
-
-const SESSION_KEY = 'control_agent_task_id'
+import { extractFinalVerdict, type FinalVerdict } from '@/lib/verdict'
+import type { SseEvent, CriteriaItem, InterruptPayload, TaskResult, TaskListItem, TaskStatusResponse } from '@/types'
 
 export interface LogEntry {
   event: SseEvent
@@ -42,6 +41,8 @@ interface AppState {
   // Step 3
   finalResult: TaskResult | null
   criteria: CriteriaItem[]
+  // 最终验收结算（逐条 expected/actual/reason）：live 路径从事件流取，恢复路径从事件回放端点补拉
+  finalVerdict: FinalVerdict | null
   step2Error: string | null
 }
 
@@ -66,7 +67,9 @@ interface AppActions {
   setLastSeq: (n: number) => void
   incStreamNonce: () => void
   loadTaskHistory: () => Promise<void>
-  selectTask: (id: string) => Promise<void>
+  loadTaskById: (id: string, signal?: AbortSignal) => Promise<void>
+  restoreSettled: (task: TaskStatusResponse) => void
+  fetchFinalVerdict: (id: string) => Promise<void>
 }
 
 const STAGE_ORDER = [
@@ -97,6 +100,7 @@ export const useAppStore = create<AppState & AppActions>((set, get) => ({
   currentInterruptKey: null,
   finalResult: null,
   criteria: [],
+  finalVerdict: null,
   step2Error: null,
 
   setStep: (s) => set({ step: s }),
@@ -108,23 +112,21 @@ export const useAppStore = create<AppState & AppActions>((set, get) => ({
   setStartError: (e) => set({ startError: e }),
 
   setTaskId: (id) => {
-    sessionStorage.setItem(SESSION_KEY, id)
     set({ taskId: id })
   },
 
   setTaskStatus: (s) => set({ taskStatus: s }),
 
   clearTask: () => {
-    sessionStorage.removeItem(SESSION_KEY)
     set({
       taskId: null, taskStatus: null, currentStage: null, currentStageLabel: null,
       eventLog: [], sseDisconnected: false, approvalPayload: null, approvalCount: 0,
       currentInterruptKey: null, finalResult: null, step2Error: null,
-      criteria: [], knownStages: [...STAGE_ORDER], lastSeq: 0, streamNonce: 0,
+      criteria: [], finalVerdict: null, knownStages: [...STAGE_ORDER], lastSeq: 0, streamNonce: 0,
     })
   },
 
-  // 一键新建任务：清当前任务 + 清 Step1 残留，回到导入页（header/侧栏/结果页共用）
+  // 一键新建任务：清当前任务 + 清 Step1 残留，回到导入页（唯一入口：任务记录侧栏）
   startNewTask: () => {
     get().clearTask()
     set({ step: 1, paperId: null, pdfPath: null, importError: null, startError: null })
@@ -179,32 +181,64 @@ export const useAppStore = create<AppState & AppActions>((set, get) => ({
     }
   },
 
-  // 选择历史任务：重置流状态 → 恢复 taskId → 按 status 落到对应步骤
-  selectTask: async (id) => {
+  // 按 URL 参数加载任务详情（路由为唯一事实来源；已在 store 中的活动任务由调用方跳过）。
+  // signal 中止（组件卸载/参数变更）时不再写 store，避免已删除/已离开的任务复活到界面上。
+  loadTaskById: async (id, signal) => {
     try {
       const task = await api.taskStatus(id)
+      if (signal?.aborted) return
       set({
         eventLog: [], lastSeq: 0, streamNonce: 0,
         approvalPayload: null, currentInterruptKey: null,
         step2Error: null, sseDisconnected: false,
         currentStage: null, currentStageLabel: null,
-        knownStages: [...STAGE_ORDER], finalResult: null, criteria: [],
+        knownStages: [...STAGE_ORDER], finalResult: null, criteria: [], finalVerdict: null,
       })
-      sessionStorage.setItem(SESSION_KEY, id)
-      set({ taskId: task.task_id, taskStatus: task.status })
-      if (task.status === 'completed' && task.result) {
-        // 恢复已完成任务：验收标准从任务记录带过来（事件流不重放）
-        const crits = (task.criteria ?? []).map(c => ({
-          criteria_id: c.criterion_id,
-          description: c.description || c.metric || c.criterion_id,
-        }))
-        set({ finalResult: task.result, taskStatus: 'completed', step: 3, criteria: crits })
+      if (task.result) {
+        // 已结算（completed / failed 都可能带 result）：与 live done 路径同语义，直达结果页
+        get().restoreSettled(task)
       } else {
+        set({ taskId: task.task_id, taskStatus: task.status })
         if (task.error) set({ step2Error: task.error, taskStatus: 'failed' })
         set({ step: 2 })
       }
     } catch {
-      // 任务不存在（已被清理）：静默忽略
+      if (signal?.aborted) return
+      // 任务不存在（已被清理）：TaskDetailPage 呈现未找到态
+      throw new Error('task_not_found')
+    }
+  },
+
+  // 已结算任务恢复（URL 直达共用）：result + 验收标准 + 补拉最终验收结算
+  restoreSettled: (task) => {
+    const crits = (task.criteria ?? []).map(c => ({
+      criteria_id: c.criterion_id,
+      description: c.description || c.metric || c.criterion_id,
+    }))
+    set({
+      taskId: task.task_id, taskStatus: task.status, step: 3,
+      finalResult: task.result, criteria: crits,
+    })
+    void get().fetchFinalVerdict(task.task_id)
+  },
+
+  fetchFinalVerdict: async (id) => {
+    try {
+      const resp = await api.taskEvents(id)
+      const evs = resp.events.map(e => e.data)
+      // 事件归档进 eventLog：结果页的统计条/过程记录在恢复路径下与 live 路径同源（真实数字）。
+      // 单次 set，避免逐条 append 造成 195 次重渲染。
+      const lastStage = [...evs].reverse().find(e => e.type === 'stage')
+      set(s => ({
+        eventLog: evs.map(ev => ({ event: ev, id: logCounter++ })).slice(-200),
+        lastSeq: Math.max(s.lastSeq, resp.events.length ? resp.events[resp.events.length - 1]!.seq : 0),
+        currentStage: lastStage?.stage ?? s.currentStage,
+        currentStageLabel: lastStage?.label ?? s.currentStageLabel,
+      }))
+      const verdict = extractFinalVerdict(evs)
+      if (verdict) set({ finalVerdict: verdict })
+    } catch {
+      // 明细补拉失败不阻断结果页，回落到验收标准列表
     }
   },
 
@@ -214,4 +248,3 @@ export const useAppStore = create<AppState & AppActions>((set, get) => ({
   clearStep2Error: () => set({ step2Error: null }),
 }))
 
-export const SESSION_TASK_KEY = SESSION_KEY

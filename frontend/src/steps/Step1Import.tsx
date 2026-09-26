@@ -1,5 +1,6 @@
 // frontend/src/steps/Step1Import.tsx
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { FileUp, FolderOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,6 +22,7 @@ export function Step1Import() {
   const setStartError  = useAppStore(s => s.setStartError)
   const setTaskId      = useAppStore(s => s.setTaskId)
   const setStep        = useAppStore(s => s.setStep)
+  const navigate       = useNavigate()
   const importError    = useAppStore(s => s.importError)
   const startError     = useAppStore(s => s.startError)
   const storedPaperId  = useAppStore(s => s.paperId)
@@ -82,6 +84,7 @@ export function Step1Import() {
       })
       setTaskId(task.task_id)
       setStep(2)
+      navigate(`/tasks/${task.task_id}`)
     } catch (e) {
       const err = e as ApiError
       setStartError(err.message ?? '启动失败')

@@ -18,19 +18,19 @@ beforeEach(() => {
 })
 
 describe('setTaskId', () => {
-  it('writes to store and sessionStorage', () => {
+  it('writes to store', () => {
     useAppStore.getState().setTaskId('task_abc123')
     expect(useAppStore.getState().taskId).toBe('task_abc123')
-    expect(sessionStorage.getItem('control_agent_task_id')).toBe('task_abc123')
   })
 })
 
 describe('clearTask', () => {
-  it('clears taskId from store and sessionStorage', () => {
+  it('clears task state from store', () => {
     useAppStore.getState().setTaskId('task_abc123')
     useAppStore.getState().clearTask()
     expect(useAppStore.getState().taskId).toBeNull()
-    expect(sessionStorage.getItem('control_agent_task_id')).toBeNull()
+    expect(useAppStore.getState().finalResult).toBeNull()
+    expect(useAppStore.getState().criteria).toEqual([])
   })
 })
 

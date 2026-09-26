@@ -123,10 +123,34 @@ export interface ToolResult {
   artifacts: { kind: string; path: string; label: string }[]
   error_layer?: string | null
 }
+// verify 节点对单条验收指标的裁决：expected/actual 是真实结算值，
+// hardcoded 表示被硬编码/作弊检查标红（代码含与期望一致的字面量）。
+export interface VerdictCriterionResult {
+  metric?: string
+  expected?: number | boolean | string | null
+  actual?: number | boolean | string | null
+  relation?: string
+  passed?: boolean
+  reason?: string
+  hardcoded?: boolean
+}
+
 export interface Verdict {
   passed?: boolean
   summary?: string
-  results?: unknown[]
+  results?: VerdictCriterionResult[]
+}
+
+// GET /tasks/{id}/events（断线补传 / 恢复任务时补拉最终验收明细）
+export interface TaskEventEntry {
+  seq: number
+  type: string
+  data: SseEvent
+}
+export interface TaskEventsResponse {
+  task_id: string
+  after_seq: number
+  events: TaskEventEntry[]
 }
 
 // ── 系统运行状态（/system/status，实时监测轮询）──

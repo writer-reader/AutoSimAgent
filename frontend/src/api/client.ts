@@ -3,7 +3,7 @@ import axios from 'axios'
 import type {
   PaperImportRequest, PaperImportResponse,
   WorkflowStartRequest, TaskStatusResponse,
-  TaskListResponse,
+  TaskListResponse, TaskEventsResponse,
   SystemStatus,
   ApiError,
 } from '@/types'
@@ -35,6 +35,14 @@ export const api = {
 
   taskList: (params?: { status?: string; limit?: number }) =>
     http.get<TaskListResponse>('/tasks', { params }).then(r => r.data),
+
+  // 任务事件回放（M0 断线补传端点）：恢复历史任务时用它补拉最终验收明细
+  taskEvents: (taskId: string, afterSeq = 0) =>
+    http.get<TaskEventsResponse>(`/tasks/${taskId}/events`, { params: { after_seq: afterSeq, limit: 5000 } }).then(r => r.data),
+
+  // 删除任务记录及其事件流（运行中的任务后端拒绝；产物文件保留在磁盘）
+  taskDelete: (taskId: string) =>
+    http.delete<{ task_id: string; deleted: boolean }>(`/tasks/${taskId}`).then(r => r.data),
 
   codeContent: (taskId: string, filename: string) =>
     http.get<string>(`/workflow/${taskId}/code/${filename}`, { responseType: 'text' }).then(r => r.data),
