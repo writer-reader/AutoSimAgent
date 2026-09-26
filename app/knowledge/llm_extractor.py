@@ -88,6 +88,8 @@ SYSTEM_PROMPT = (
     "   - relation：approx_zero(趋于0)/approx(约等于expected)/less_than/greater_than/equals/converges(收敛)/decreasing(单调降)/stable(稳定)/qualitative(定性)；\n"
     "   - expected：期望值（数值/字符串/布尔，可空）；tolerance：数值容差（可空）。\n"
     "每一项都必须给出 evidence_ref（引用最相关块的锚点，如 'section_3.block_0'）与 confidence(0~1)。"
+    "所有自然语言字段（description/context/implementation_notes/assumptions/name）一律用中文撰写；"
+    "metric 保持英文蛇形（它是复现代码的机读键）。"
     "只输出符合 schema 的 JSON，不要多余文字。找不到的类别返回空数组。"
 )
 
@@ -100,7 +102,7 @@ class _CriteriaOnly(BaseModel):
 # 穷尽式验收标准抽取（专用 pass，治单次抽取"只挑子集"的非确定性）。
 CRITERIA_EXHAUSTIVE_PROMPT = (
     "你是控制论文复现专家。从下面的论文中，找出所有**可用仿真代码定量验证**的声称结果。\n"
-    "每条给出：metric（英文蛇形指标名）、description（命题描述）、"
+    "每条给出：metric（英文蛇形指标名）、description（**中文**命题描述，面向中文读者复现者）、"
     "relation（approx_zero/approx/less_than/greater_than/equals/converges/decreasing/stable/qualitative）、"
     "expected（期望数值，可null）、tolerance（容差，可null）、evidence_ref（段落锚点）、confidence（0~1）。\n\n"
     "【典型可验证命题】：稳态频率/电压误差、功率分配误差、settling时间、超调量、"
@@ -116,12 +118,18 @@ CRITERIA_EXHAUSTIVE_PROMPT = (
 CRITERIA_CONSOLIDATE_PROMPT = (
     "以下是对同一篇论文多次抽取得到的候选验收标准（可能重复、命名不一致、粒度不同）。"
     "请合并语义等价项、统一 metric 命名(英文蛇形)、去重，输出一份**完整且不重复**的清单。"
-    "保留所有语义不同的命题不要丢失覆盖；同义项合并为一条并取更明确的 description/expected/relation。只输出 JSON。"
+    "保留所有语义不同的命题不要丢失覆盖；同义项合并为一条并取更明确的 description/expected/relation。"
+    "description 一律用中文输出。只输出 JSON。"
 )
 
 
 # paper_to_prompt_text 函数，将 ParsedPaper 渲染为带锚点的可读文本供 LLM 抽取。
-def paper_to_prompt_text(paper: ParsedPaper, max_chars: int = 48000) -> str:
+# max_chars 全局截断（字符≈token×4，英文/LaTeX 为主）；表格 HTML 是 token 大户，单块先截断到 800 字符。
+DEFAULT_PROMPT_MAX_CHARS = 48000
+_TABLE_HTML_MAX_CHARS = 800
+
+
+def paper_to_prompt_text(paper: ParsedPaper, max_chars: int = DEFAULT_PROMPT_MAX_CHARS) -> str:
     lines: list[str] = [f"# {paper.title or paper.paper_id}", f"(paper_id: {paper.paper_id})", ""]
     for sec in paper.sections:
         lines.append(f"## [{sec.section_id}] {sec.heading}")
@@ -130,7 +138,9 @@ def paper_to_prompt_text(paper: ParsedPaper, max_chars: int = 48000) -> str:
             if block.type == "equation":
                 lines.append(f"[{ref}] (equation) {block.latex or block.text}")
             elif block.type == "table":
-                lines.append(f"[{ref}] (table) {block.caption or ''} {block.html or ''}")
+                html = block.html or ""
+                trimmed = html[:_TABLE_HTML_MAX_CHARS] + ("…(截断)" if len(html) > _TABLE_HTML_MAX_CHARS else "")
+                lines.append(f"[{ref}] (table) {block.caption or ''} {trimmed}")
             elif block.type == "image":
                 lines.append(f"[{ref}] (figure) {block.caption or ''}")
             else:
@@ -148,12 +158,15 @@ class LlmKnowledgeExtractor:
 
     # extract 函数，抽取并映射为严格 schema 的四类知识。
     # criteria_samples>=2 时启用穷尽多采样+归并去重（治验收标准非确定性）；<=1 用主 pass 结果（快）。
+    # max_chars 控制 prompt 全局截断（建议传 max_context_tokens×4，英文/LaTeX 文本）。
     def extract(
-        self, paper: ParsedPaper, criteria_samples: int = 1
+        self, paper: ParsedPaper, criteria_samples: int = 1,
+        max_chars: int = DEFAULT_PROMPT_MAX_CHARS,
     ) -> tuple[list[Equation], list[Controller], list[Parameter], list[AcceptanceCriterion]]:
-        text = paper_to_prompt_text(paper)
+        text = paper_to_prompt_text(paper, max_chars)
         out = self.llm.structured(
-            [system(SYSTEM_PROMPT), user(text)], KnowledgeExtraction, role="extractor"
+            [system(SYSTEM_PROMPT), user(text)], KnowledgeExtraction, role="extractor",
+            label="知识抽取：主抽取（公式/控制器/参数/验收标准）",
         )
         eqs, ctrls, params, main_criteria = self._map(paper.paper_id, out)
         if criteria_samples <= 1:
@@ -165,11 +178,14 @@ class LlmKnowledgeExtractor:
         return eqs, ctrls, params, criteria
 
     # extract_criteria 函数，穷尽多采样 + LLM 归并去重，产出稳定全覆盖的验收标准。
+    # 采样温度 0.5：多采样靠温度制造差异（extractor 默认 0.0 时各次几乎重复，多跑白费）。
     def extract_criteria(self, paper_id: str, text: str, samples: int = 3) -> list[AcceptanceCriterion]:
         candidates: list[_CritOut] = []
-        for _ in range(max(1, samples)):
+        n = max(1, samples)
+        for i in range(n):
             out = self.llm.structured(
-                [system(CRITERIA_EXHAUSTIVE_PROMPT), user(text)], _CriteriaOnly, role="extractor"
+                [system(CRITERIA_EXHAUSTIVE_PROMPT), user(text)], _CriteriaOnly, role="extractor",
+                temperature=0.5, label=f"验收标准穷尽采样 #{i + 1}/{n}",
             )
             candidates.extend(out.criteria)
         if not candidates:
@@ -179,7 +195,8 @@ class LlmKnowledgeExtractor:
             payload = json.dumps([c.model_dump() for c in candidates], ensure_ascii=False)
             try:
                 cons = self.llm.structured(
-                    [system(CRITERIA_CONSOLIDATE_PROMPT), user(payload)], _CriteriaOnly, role="extractor"
+                    [system(CRITERIA_CONSOLIDATE_PROMPT), user(payload)], _CriteriaOnly, role="extractor",
+                    label="验收标准归并去重",
                 )
                 if cons.criteria:
                     merged = cons.criteria

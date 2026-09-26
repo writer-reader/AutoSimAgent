@@ -44,10 +44,42 @@ def _wrap(handler, node_name: str, on_progress: ProgressCallback | None):
     def wrapped(state):
         on_progress(f"graph:{node_name}", {"node": node_name, "phase": "start"})
         result = handler(state)
-        on_progress(f"graph:{node_name}:done", {"node": node_name, "phase": "done"})
+        # 节点完成时把该节点产出的关键产物外发（M0 透明化：plan/代码/工具结果/验收判定）
+        on_progress(f"graph:{node_name}:done", _node_done_detail(node_name, result))
         return result
 
     return wrapped
+
+
+# _node_done_detail 函数，按节点类型提取"完成时刻"的透明化详情。
+# 黑盒→直播：plan JSON、生成代码、工具 stdout/stderr 尾部与算出指标、验收逐条判定全部进事件流。
+# 对外字段刻意只读，不携带 expected/tolerance（防作弊双防线保留）。
+def _node_done_detail(node_name: str, state: WorkflowState) -> dict:
+    detail: dict = {"node": node_name, "phase": "done"}
+    if node_name == "plan":
+        detail["plan"] = state.plan
+    elif node_name == "generate":
+        detail["code"] = state.generated_code
+        detail["code_paths"] = list(state.generated_code_paths)
+    elif node_name == "execute":
+        last = state.latest_tool()
+        if last is not None:
+            detail["tool_result"] = {
+                "seq": last.index,
+                "ok": last.ok,
+                "stdout_tail": (last.stdout or "")[-2000:],
+                "stderr_tail": (last.stderr or "")[-2000:],
+                "artifacts": [a.model_dump() for a in last.artifacts],
+                "error_layer": last.error_layer,
+            }
+        detail["metrics"] = state.computed_metrics
+        detail["retries"] = state.retries.model_dump()
+    elif node_name == "verify":
+        detail["verdict"] = state.verdict
+    elif node_name == "extract_knowledge":
+        detail["knowledge_ref"] = state.knowledge_json
+        detail["criteria_count"] = len(state.acceptance_criteria)
+    return detail
 
 
 # ControlWorkflow 类，封装 LangGraph 图的构建与运行。
@@ -170,6 +202,25 @@ class ControlWorkflow:
             return bool(snap.tasks and any(t.interrupts for t in snap.tasks))
         except Exception:
             return False
+
+    # has_checkpoint 方法，判断该 thread 是否已有 checkpoint（图跑过至少一个节点）。
+    # 用于 restart_pipeline 选择续跑（invoke None）还是从图起点跑。
+    def has_checkpoint(self, task_id: str) -> bool:
+        config = self._config(task_id)
+        try:
+            snap = self.graph.get_state(config)
+            # values 非空 = 已持久化过状态（checkpoint 存在）
+            return bool(getattr(snap, "values", None))
+        except Exception:
+            return False
+
+    # resume_from_checkpoint 方法，从最后 checkpoint 续跑（进程被杀后崩溃恢复）。
+    # 关键：invoke(None, config)——只传 config、不重灌输入，LangGraph 从最后完成节点继续。
+    # 不同于 run()（invoke(state) 重灌输入）与 resume()（invoke(Command(resume)) 审批恢复）。
+    def resume_from_checkpoint(self, task_id: str, recursion_limit: int = 50) -> WorkflowState:
+        config = self._config(task_id, recursion_limit)
+        result = self.graph.invoke(None, config)
+        return WorkflowState.model_validate(result)
 
     # get_interrupt_payload 方法，返回 interrupt() 传递的 payload（代码预览等）。
     def get_interrupt_payload(self, task_id: str) -> dict:

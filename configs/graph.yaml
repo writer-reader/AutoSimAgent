@@ -5,6 +5,9 @@ version: "1.0"
 checkpoint_backend: "sqlite"
 checkpoint_path: "data/checkpoints/langgraph.sqlite"
 
+# 事件溯源 + 会话留存统一库（M0 起 tasks/events 两表落此库，重启不丢、SSE 可断线续传、任务可回放）
+session_db_path: "data/autoagent.db"
+
 # 保留旧字段（未被读取，细化见下方 l1-l4_budget）
 max_retries_per_node: 2
 

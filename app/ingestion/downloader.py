@@ -52,3 +52,20 @@ def import_local_pdf(source: PaperSource, data_dir: str | Path = "data/papers", 
     output_path = output_dir / f"{paper_id}.pdf"
     shutil.copy2(path, output_path)
     return DownloadResult(paper_id=paper_id, pdf_path=str(output_path), file_hash=file_hash, metadata=source.metadata)
+
+
+# import_uploaded_pdf 函数，接收上传字节流写盘（复用 sha256→paper_id→data/papers/{paper_id}.pdf 约定）。
+# 与 import_local_pdf 同构，但数据来自浏览器 multipart 上传（不经本地路径）。
+def import_uploaded_pdf(data: bytes, data_dir: str | Path = "data/papers", max_size_mb: int = 100,
+                         metadata: dict[str, Any] | None = None) -> DownloadResult:
+    if not data:
+        raise DownloadError("paper_missing", "Uploaded PDF is empty", {})
+    if len(data) > max_size_mb * 1024 * 1024:
+        raise DownloadError("paper_too_large", "PDF file exceeds configured size limit", {"max_size_mb": max_size_mb})
+    file_hash = hashlib.sha256(data).hexdigest()
+    paper_id = f"paper_{file_hash[:12]}"
+    output_dir = Path(data_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"{paper_id}.pdf"
+    output_path.write_bytes(data)
+    return DownloadResult(paper_id=paper_id, pdf_path=str(output_path), file_hash=file_hash, metadata=metadata or {})

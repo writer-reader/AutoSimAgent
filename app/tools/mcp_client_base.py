@@ -123,6 +123,14 @@ class StdioMcpClient(McpClientBase):
             raise ToolExecutionError("mcp_start_failed", "Failed to start MCP session", {"error": str(exc)}) from exc
         self._started = True
 
+    # connection_status 函数，无副作用的连接状态快照（供 /system/status 监测，不发 MATLAB 调用）。
+    def connection_status(self) -> dict[str, bool]:
+        return {
+            "started": self._started,
+            "session_alive": self._session is not None,
+            "loop_alive": self._loop is not None and self._loop.is_running(),
+        }
+
     # call_tool 函数，调用 MCP 工具并归一化结果。
     def call_tool(self, name: str, arguments: dict[str, Any], timeout_s: int | None = None) -> ToolResult:
         if not self._started or self._session is None:

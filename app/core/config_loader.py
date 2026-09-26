@@ -100,6 +100,8 @@ class GraphConfig(VersionedConfig):
     checkpoint_path: str
     max_retries_per_node: int           # 保留旧字段，未被读取（细化字段见下）
     approval_timeout_s: int
+    # 事件溯源 + 会话留存统一库（M0 起 tasks/events 落此库，重启不丢、可回放）
+    session_db_path: str = "data/autoagent.db"
     # 任务生命周期与事件队列（原 orchestrator_service.py 硬编码）
     task_ttl_s: int = 7200          # 已终止任务保留秒数，超时后懒清理
     sse_queue_maxsize: int = 256    # 每任务 SSE 事件队列最大条数
@@ -119,8 +121,10 @@ class ModelConfig(VersionedConfig):
     default_llm_env: str = "LLM_DEFAULT_MODEL"
     planner_llm_env: str = "LLM_PLANNER_MODEL"
     request_timeout_s: int = 120
+    sdk_max_retries: int = 1         # OpenAI SDK 内部自动重试次数（0=由应用层全权控制重试与回滚）
     max_structured_retries: int = 2
     temperature: dict[str, float] = Field(default_factory=dict)
+    extra_body: dict[str, Any] = Field(default_factory=dict)  # 透传 chat.completions 的供应商专属参数（如 enable_thinking）
 
     # base_url 属性，从环境变量解析 LLM base_url（缺失即 fail-fast）。
     @property

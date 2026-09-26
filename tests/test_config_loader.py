@@ -13,7 +13,9 @@ def test_load_config_reads_all_required_config_files() -> None:
     assert config.mineru.backend == "api"
     assert config.matlab.session_isolation == "per_user"
     assert config.model.provider == "deepseek"
-    assert "model_edit" in config.matlab.high_risk_tools
+    # 对齐 matlab-mcp-server v0.12.0 真实工具名（model_edit/model_test 不存在）
+    assert "evaluate_matlab_code" in config.matlab.high_risk_tools
+    assert "run_matlab_test_file" in config.matlab.high_risk_tools
 
 
 # test_rag_config_removed 测试函数，确认 RAG 配置已彻底移除。

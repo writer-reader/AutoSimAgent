@@ -86,7 +86,8 @@ class RealPlanner:
         )
         if prior:
             prompt += f"\n上一次执行失败，请修正方案。失败信息：{prior}\n"
-        result = self.llm.complete([system("只输出 JSON 计划。"), user(prompt)], role="planner")
+        result = self.llm.complete([system("只输出 JSON 计划。"), user(prompt)], role="planner",
+                                   label="规划：生成仿真执行方案")
         plan = _read_json_text(result)
         plan.setdefault("objective", "reproduce controller")
         return plan
@@ -124,7 +125,8 @@ class RealCodeGen:
             f"\n计划：{json.dumps(plan, ensure_ascii=False)[:8000]}\n{err_ctx}{calib_ctx}"
             "只输出 MATLAB 代码，不要 markdown 代码块标记。"
         )
-        code = self.llm.complete([system("你是 MATLAB 代码专家，只输出裸代码。"), user(prompt)], role="codegen")
+        code = self.llm.complete([system("你是 MATLAB 代码专家，只输出裸代码。"), user(prompt)], role="codegen",
+                                 label="代码生成：MATLAB/Simulink")
         return _strip_code_fence(code)
 
 
@@ -192,10 +194,12 @@ class RealExecutor:
 
 # RealReExtractor 类，L4 回滚时重新抽取知识（降低置信度阈值 + 增加采样数）。
 class RealReExtractor:
-    def __init__(self, llm: LLMClient, criteria_samples: int = 3, confidence_threshold: float = 0.6) -> None:
+    def __init__(self, llm: LLMClient, criteria_samples: int = 1, confidence_threshold: float = 0.6,
+                 max_context_tokens: int = 12000) -> None:
         self.llm = llm
         self.criteria_samples = criteria_samples
         self.confidence_threshold = confidence_threshold
+        self.max_context_tokens = max_context_tokens
 
     def __call__(self, state) -> Any:
         from pathlib import Path as _Path
@@ -216,11 +220,14 @@ class RealReExtractor:
 
         try:
             paper = load_parsed_paper(ref)
-            # 重抽时：采样数 +1、置信度阈值降低20%，提升召回
-            new_samples = self.criteria_samples + 1
+            # 重抽时才启用穷尽多采样+归并去重（首次抽取只跑主 pass；回滚是召回优先、可承受多几次调用的场景）
+            new_samples = max(3, self.criteria_samples + 2)
             new_threshold = round(self.confidence_threshold * 0.8, 3)
             extractor = LlmKnowledgeExtractor(self.llm)
-            eqs, ctrls, params, criteria = extractor.extract(paper, criteria_samples=new_samples)
+            # prompt 全局截断：字符 ≈ token×4（英文/LaTeX 为主）
+            eqs, ctrls, params, criteria = extractor.extract(
+                paper, criteria_samples=new_samples, max_chars=self.max_context_tokens * 4,
+            )
             merged = merge_knowledge(state.paper_id, eqs, ctrls, params, new_threshold, criteria=criteria)
             new_knowledge_ref = save_merged_knowledge(merged)
             state.knowledge_json = new_knowledge_ref
@@ -245,15 +252,16 @@ def build_real_deps(
     llm: LLMClient,
     matlab: MatlabMcpClient,
     tool_name: str = "evaluate_matlab_code",
-    criteria_samples: int = 3,
+    criteria_samples: int = 1,
     confidence_threshold: float = 0.6,
+    max_context_tokens: int = 12000,
 ) -> NodeDeps:
     return NodeDeps(
         planner=RealPlanner(llm),
         codegen=RealCodeGen(llm),
         executor=RealExecutor(matlab),
         verifier=RealVerifier(llm),
-        re_extractor=RealReExtractor(llm, criteria_samples, confidence_threshold),
+        re_extractor=RealReExtractor(llm, criteria_samples, confidence_threshold, max_context_tokens),
         tool_name=tool_name,
     )
 
@@ -353,7 +361,8 @@ class RealVerifier:
             f"待查指标：{metrics}\n代码：\n{code[:6000]}"
         )
         try:
-            out = self.llm.structured([system("你是严格的代码审查员，专抓硬编码与反推凑答案作弊。"), user(prompt)], _HardcodeOut, role="extractor")
+            out = self.llm.structured([system("你是严格的代码审查员，专抓硬编码与反推凑答案作弊。"), user(prompt)], _HardcodeOut, role="extractor",
+                                      label="审查：硬编码/作弊检查")
             return {k: v for k, v in out.hardcoded.items() if k in metrics}
         except Exception:
             return {}
@@ -387,7 +396,8 @@ class RealVerifier:
             f"仿真输出摘要：{(stdout or '')[:1000]}\n"
         )
         try:
-            out = self.llm.structured([system("你是严谨的复现结果审核员。"), user(prompt)], _JudgeOut, role="extractor")
+            out = self.llm.structured([system("你是严谨的复现结果审核员。"), user(prompt)], _JudgeOut, role="extractor",
+                                      label="审核：复现结果评审")
             return {"passed": bool(out.passed), "reason": out.reason}
         except Exception as exc:
             return {"passed": False, "reason": f"judge_failed: {exc}"}

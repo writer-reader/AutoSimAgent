@@ -43,6 +43,15 @@ def shutdown_matlab_client() -> None:
             _singleton = None
 
 
+# matlab_client_status 函数，读取单例连接状态（不创建、不启动客户端，无副作用；供 /system/status）。
+def matlab_client_status() -> dict:
+    with _lock:
+        s = _singleton
+    if s is None:
+        return {"initialized": False, "started": False, "session_alive": False, "loop_alive": False}
+    return {"initialized": True, **s.connection_status()}
+
+
 # is_high_risk 函数，判断工具是否需要人工审批。
 def is_high_risk(tool_name: str, config: MatlabConfig | None = None) -> bool:
     risk = set(config.high_risk_tools) if config and config.high_risk_tools else _DEFAULT_HIGH_RISK

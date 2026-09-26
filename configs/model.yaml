@@ -5,8 +5,11 @@ api_key_env: "LLM_API_KEY"
 base_url_env: "LLM_BASE_URL"
 default_llm_env: "LLM_DEFAULT_MODEL"
 planner_llm_env: "LLM_PLANNER_MODEL"
-request_timeout_s: 600
+request_timeout_s: 150           # 单次 HTTP 尝试超时；SDK 层另有 sdk_max_retries，超时快速失败走 L1-L5 回滚
+sdk_max_retries: 1               # OpenAI SDK 内部自动重试次数（默认 2 会把长超时静默放大数倍，务必显式配置）
 max_structured_retries: 2        # 结构化输出校验失败的回喂重试次数
+extra_body:                      # 透传给 chat.completions 的额外参数（供应商专属，可整段删掉）
+  enable_thinking: false         # DashScope 兼容接口：抽取/规划任务关闭思考模式，大幅降低延迟
 temperature:
   planner: 0.2
   extractor: 0.0

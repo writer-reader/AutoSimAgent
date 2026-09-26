@@ -1,4 +1,4 @@
-# 测试共享夹具：路径注入 + 假 LLM 客户端。
+# 测试共享夹具：路径注入 + 假 LLM 客户端 + 事件库隔离。
 from __future__ import annotations
 
 import sys
@@ -11,6 +11,25 @@ if str(ROOT) not in sys.path:
 import pytest
 
 from app.core.config_loader import ModelConfig
+from app.events.store import EventStore
+
+
+# _isolated_event_store 夹具（autouse），每个用例用独立的临时事件库，避免污染开发库。
+@pytest.fixture(autouse=True)
+def _isolated_event_store(tmp_path):
+    from app.services.orchestrator_service import registry
+    store = EventStore(tmp_path / "test_agent.db")
+    registry.attach_store(store)
+    # 复位 MATLAB MCP 单例（防止跨用例泄漏：某些用例可能触发 get_matlab_client）
+    from app.tools import mcp_factory
+    mcp_factory._singleton = None  # noqa: SLF001
+    yield store
+    store.close()
+    # 重置 workflow 缓存与 matlab 单例（若有）
+    from app.services.orchestrator_service import registry as reg
+    for tid in list(reg._workflows.keys()):  # noqa: SLF001
+        reg._workflows.pop(tid, None)  # noqa: SLF001
+    mcp_factory._singleton = None  # noqa: SLF001
 
 
 # _FakeMsg / _FakeResp，模拟 openai chat.completions 返回结构。

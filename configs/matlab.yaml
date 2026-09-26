@@ -1,21 +1,23 @@
 # matlab.yaml —— 真实 MATLAB MCP server 启动配置。
 version: "1.0"
-matlab_mcp_server_version: "0.2.0"
+matlab_mcp_server_version: "0.12.0"
 session_isolation: "per_user"
-# 真实 stdio MCP server 可执行文件与参数（与 ~/.claude.json 中一致）
+# 真实 stdio MCP server 可执行文件与参数。
+# 注意：--matlab-root 必须指向真实安装位置（本机 Y:\matlab，勿写 /bin）；
+# --extension-file 不能指向不存在的文件，否则 server 启动即退出（mcp_start_failed 的根因）。
+# 本机 agentic-toolkits 无 tools.json 扩展文件，不传该参数即加载内置 5 工具：
+# check_matlab_code / detect_matlab_toolboxes / evaluate_matlab_code / run_matlab_file / run_matlab_test_file
 mcp_server_command:
   - "C:\\Users\\angry\\.matlab\\agentic-toolkits\\bin\\matlab-mcp-server.exe"
 mcp_server_args:
   - "--matlab-session-mode=new"
-  - "--matlab-root=D:/matlab"
-  - "--extension-file=C:\\Users\\angry\\.matlab\\agentic-toolkits\\simulink\\tools\\tools.json"
+  - "--matlab-root=Y:\\matlab"
 startup_timeout_s: 120
 tool_timeout_s: 300
 working_dir_root: "data/code/generated"
 require_human_approval_for_code_execution: true
-# 高风险工具（需人工审批），对齐真实 MCP 工具名
+# 高风险工具（需人工审批），对齐 server v0.12.0 真实工具名
 high_risk_tools:
   - "evaluate_matlab_code"
   - "run_matlab_file"
-  - "model_edit"
-  - "model_test"
+  - "run_matlab_test_file"
