@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AutoSimAgent · 论文进，仿真出：一次真实运行的完整回放</title>
+<meta name="description" content="AutoSimAgent 读入控制工程论文，抽取知识，生成并执行 MATLAB/Simulink 代码，对照验收标准逐条核对。本页回放一次真实运行的全部 195 条事件，含每次 LLM 调用的 token 与耗时。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%236d28d9'/><path d='M12 9l10 7-10 7z' fill='white'/></svg>">
+<link rel="preload" href="assets/Geist-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/Geist-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="scrollcraft.css">
+<link rel="stylesheet" href="page.css">
+</head>
+<body>
+
+<span data-sc-progress aria-hidden="true"></span>
+
+<main>
+
+  <!-- ══ 台面轨道：粘性台面 + 空 flow 标记（滚动即回放时间轴） ══ -->
+  <div class="track" id="track">
+    <div class="holder">
+      <section class="surface" id="surface" data-sc-verify-state="ph:boot|ln:0|node:parse|panel:paper" aria-label="AutoSimAgent 运行台面，回放一次真实任务">
+
+        <!-- 应用 chrome：顶栏 -->
+        <header class="topbar">
+          <h1>AutoSimAgent</h1>
+          <span class="chip">真实运行回放</span>
+          <span class="topbar__task">task_dbe9b64148a5 · 2026-09-25</span>
+          <a class="topbar__link" href="http://localhost:5173" target="_blank" rel="noopener">打开工作台 ↗</a>
+        </header>
+
+        <!-- 流水线图：回滚边 + 可点击节点（即导航） -->
+        <div class="s-graph">
+          <div class="s-graph__row">
+            <svg class="s-graph__svg" viewBox="0 0 700 64" preserveAspectRatio="none" aria-hidden="true">
+              <path class="chain" d="M50,22 H650"/>
+              <path id="arcL2a" d="M650,22 C560,54 440,54 350,22"/>
+              <path id="arcL2b" d="M550,22 C500,40 400,40 350,22"/>
+              <path id="arcL3"  d="M650,22 C540,58 260,58 250,22"/>
+              <path id="arcL4"  d="M650,22 C540,62 160,62 150,22"/>
+            </svg>
+            <ol class="s-graph__nodes" id="nodes">
+              <li><button class="g-node" type="button" data-node="parse"><span class="g-dot"></span>解析</button></li>
+              <li><button class="g-node" type="button" data-node="knowledge"><span class="g-dot"></span>知识</button></li>
+              <li><button class="g-node" type="button" data-node="plan"><span class="g-dot"></span>规划</button></li>
+              <li><button class="g-node" type="button" data-node="generate"><span class="g-dot"></span>生成</button></li>
+              <li><button class="g-node" type="button" data-node="approval"><span class="g-dot"></span>审批</button></li>
+              <li><button class="g-node" type="button" data-node="execute"><span class="g-dot"></span>执行</button></li>
+              <li><button class="g-node" type="button" data-node="verify"><span class="g-dot"></span>校验</button></li>
+            </ol>
+            <span class="g-play" id="play" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <!-- 主区：说明 + 面板 | 事件流 -->
+        <div class="s-main">
+          <div class="s-left">
+            <div class="s-cap">
+              <p class="s-cap__label" id="capLabel">待机 · 真实运行回放</p>
+              <p class="s-cap__body" id="capBody">task_dbe9b64148a5 的完整回放：63 次 LLM 调用 · 318,376 tokens · 20 分 14 秒 · 195 条事件。数字全部来自本仓库事件库，无演示编排。</p>
+            </div>
+            <div class="s-panel">
+
+              <div class="p-card is-on" data-panel="paper">
+                <p class="p-eyebrow">回放任务</p>
+                <h2 class="p-title">Event-Triggered Updating Method in Centralized and Distributed Secondary Controls for Islanded Microgrid Restoration</h2>
+                <dl class="p-meta">
+                  <div><dt>论文</dt><dd>paper_ad7bcb47121d</dd></div>
+                  <div><dt>解析</dt><dd>MinerU</dd></div>
+                  <div><dt>任务</dt><dd>task_dbe9b64148a5</dd></div>
+                </dl>
+                <p class="p-note">这是一篇孤岛微电网恢复控制的论文。AutoSimAgent 要做的事：读论文、抽知识、写 MATLAB、跑仿真、对照验收标准逐条核对。滚动本页，回放它实际跑完的每一步。</p>
+              </div>
+
+              <div class="p-card" data-panel="knowledge">
+                <p class="p-eyebrow">知识抽取结果</p>
+                <div class="p-stats">
+                  <div><b>15</b><span>公式</span></div>
+                  <div><b>9</b><span>参数</span></div>
+                  <div><b>2</b><span>控制器</span></div>
+                </div>
+                <ul class="p-crit" id="critList"></ul>
+                <p class="p-note">验收标准由 LLM 从论文里穷尽提取，每条带置信度与证据位置；后续 MATLAB 代码将逐条对照这些标准评审。</p>
+              </div>
+
+              <div class="p-card" data-panel="code">
+                <p class="p-eyebrow">代码生成</p>
+                <div class="p-file"><code>gen_0.m</code><span>8,594 字节 · 微电网二次恢复控制仿真</span></div>
+                <pre class="code" id="codeHead"></pre>
+                <p class="p-note">生成代码按论文的控制器结构落盘为 gen_N.m；auto_approve=false 时，执行前暂停等待人工审批，也可在工作台里直接编辑。</p>
+              </div>
+
+              <div class="p-card" data-panel="approval">
+                <div class="p-alert">
+                  <b>⚠ 等待人工审批</b>
+                  <p>MATLAB 代码已生成，流水线在此暂停（LangGraph interrupt）。你可以在工作台里审查或修改生成代码，批准后从断点恢复执行。</p>
+                </div>
+                <div class="p-actions">
+                  <button class="btn" type="button" id="btnApprove">批准并继续执行</button>
+                  <a class="btn btn--ghost" href="http://localhost:5173" target="_blank" rel="noopener">去工作台编辑</a>
+                </div>
+              </div>
+
+              <div class="p-card" data-panel="approve-ok">
+                <p class="p-ok">✓ 已批准 · 从断点恢复执行</p>
+                <p class="p-note">interrupt 状态会被完整记录：即使中途重启后端，任务也能凭 checkpoint 从这里续跑。</p>
+              </div>
+
+              <div class="p-card" data-panel="verdict-fail">
+                <div class="p-verdict">
+                  <b>✗ 第 1 轮验收未达标</b>
+                  <p class="reason">评审在最基础的指标上否决了代码：</p>
+                  <p class="reason"><span class="metric">voltage_restoration_final</span> 期望 380.0，实测 0。理由：<em>作弊嫌疑（未从模型正向计算）：代码含等于期望值(380.0)的字面量，疑似反推/抄答案。</em></p>
+                  <p class="reason">硬编码/作弊检查会主动指认贴答案式的代码。按路由规则，任务沿回滚边退回「生成」。</p>
+                </div>
+              </div>
+
+              <div class="p-card" data-panel="rounds">
+                <p class="p-eyebrow">回滚进行中</p>
+                <p class="p-note" style="margin-top:0">验收未达标不是终点。流水线按层降级自救，每一层都是图上的一条边，全部记录在事件流里：</p>
+                <ul class="ladder">
+                  <li id="ladL1">L1 · 重执行</li>
+                  <li id="ladL2">L2 · 重生成</li>
+                  <li id="ladL3">L3 · 重规划</li>
+                  <li id="ladL4">L4 · 重抽取</li>
+                  <li>L5 · 终止</li>
+                </ul>
+                <p class="p-note">下面几轮里，它会先重写代码（L2），再换执行方案（L3），最后回到最上游把知识重新抽一遍（L4）。</p>
+              </div>
+
+              <div class="p-card" data-panel="criteria-diff">
+                <p class="p-eyebrow">L4 · 验收标准扩充</p>
+                <p class="p-diff"><b>10</b><span>→</span><b class="new">23</b></p>
+                <p class="p-note">主抽取重跑后，验收标准穷尽采样 ×3 再归并去重：论文里隐含的验收点被挖全，每一条都比之前更难蒙混。</p>
+              </div>
+
+              <div class="p-card" data-panel="final">
+                <p class="p-eyebrow">仿真产物 · 真实输出</p>
+                <div class="p-figs">
+                  <figure>
+                    <img src="assets/fig_1.png" width="1384" height="912" alt="真实仿真产物：四台 DG 输出电压在 t=1s 二次控制启动后恢复至 380V 参考值" loading="lazy">
+                    <figcaption>fig_1.png · DG Output Voltages（V）</figcaption>
+                  </figure>
+                  <figure>
+                    <img src="assets/fig_2.png" width="1402" height="912" alt="真实仿真产物：DG 输出频率在扰动后恢复至 50Hz 参考值" loading="lazy">
+                    <figcaption>fig_2.png · DG Output Frequencies（Hz）</figcaption>
+                  </figure>
+                </div>
+                <div class="p-settle">
+                  <span class="big">5 / 23 达标</span>
+                  <span class="flag">复现层 L2</span>
+                  <span class="ok">结论如实记录</span>
+                </div>
+                <p class="p-note" style="margin-top:0">验收未全部达标：瓶颈在复现质量（L2/L3/校准），不在系统。它不粉饰结论，只把每一次尝试、每一个 token、每一秒耗时都摊在桌上。</p>
+                <div class="p-account">
+                  <div><b>63</b><span>LLM 调用</span></div>
+                  <div><b>318,376</b><span>tokens</span></div>
+                  <div><b>20:14</b><span>总耗时</span></div>
+                  <div><b>195</b><span>事件条数</span></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 事件流 -->
+          <div class="s-log">
+            <div class="s-log__head"><span>事件流 SSE</span><span id="logCount">真实记录</span></div>
+            <div class="s-log__box" id="logBox">
+              <ol id="log" role="log" aria-label="运行事件流"></ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- 状态栏：真实累计遥测 -->
+        <div class="s-status">
+          <span class="ph" data-c="ph">待机</span>
+          <span class="sep">|</span>
+          <span>LLM 调用 <b data-c="calls">0</b></span>
+          <span class="sep">·</span>
+          <span>tokens <b data-c="tok">0</b></span>
+          <span class="sep">·</span>
+          <span>验收标准 <b data-c="crit">—</b></span>
+          <span class="sep">·</span>
+          <span>用时 <b data-c="el">00:00</b></span>
+          <span class="grow"></span>
+          <span class="g-rb" id="rbBadge">L2 · 重生成</span>
+          <span>SSE 已连接</span>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- flow 标记：每段 = 回放的一个阶段，滚动推进台面状态 -->
+    <div class="lead" style="height:30vh" aria-hidden="true"></div>
+    <section class="mark" data-sc-act="flow" aria-label="阶段 1"></section>
+    <section class="mark" data-sc-act="flow" aria-label="阶段 2"></section>
+    <section class="mark" data-sc-act="flow" aria-label="阶段 3"></section>
+    <section class="mark" data-sc-act="flow" aria-label="阶段 4"></section>
+    <section class="mark" data-sc-act="flow" aria-label="阶段 5"></section>
+    <section class="mark" data-sc-act="flow" aria-label="阶段 6"></section>
+    <section class="mark" data-sc-act="flow" aria-label="阶段 7"></section>
+    <div style="height:100vh" aria-hidden="true"></div>
+  </div>
+
+  <!-- ══ 收束：一个真的输入 ══ -->
+  <section class="close">
+    <div class="sc-wrap close__in sc-stack" data-sc-in data-sc-stagger="70">
+      <h2>轮到你的论文了</h2>
+      <p class="lede">丢进一篇控制工程论文，它读论文、抽知识、写 MATLAB、跑仿真、对照验收标准逐条核对。它不保证一次成功；它保证每一次尝试都留痕，失败会沿着回滚边自己再爬起来。</p>
+      <form class="q-form" id="qform" novalidate>
+        <label class="p-eyebrow" for="qin" style="margin-bottom:8px">新建任务 · 论文 PDF 链接或 arXiv ID</label>
+        <div class="q-row">
+          <input id="qin" name="paper" type="url" inputmode="url" placeholder="https://arxiv.org/abs/…" autocomplete="off">
+          <button class="btn" type="submit">加入队列</button>
+        </div>
+      </form>
+      <div class="q-out" id="qout" hidden></div>
+      <p class="q-hint">本页是静态回放：提交只在本地演示队列里登记。启动 <code>python run_backend.py</code> 与 Vite 工作台后，任务才进入真实流水线。</p>
+      <p class="q-links"><a href="http://localhost:5173" target="_blank" rel="noopener">打开工作台</a><span class="dot">·</span><a href="https://github.com/writer-reader/AutoSimAgent" target="_blank" rel="noopener">源码仓库</a></p>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    AutoSimAgent · FastAPI + LangGraph + MATLAB MCP · React + Vite 工作台<br>
+    本页数据：data/autoagent.db 中 task_dbe9b64148a5 的 195 条真实事件，验收结论未修饰。
+  </footer>
+
+</main>
+
+<script src="assets/replay.js"></script>
+<script src="scrollcraft.js"></script>
+<script src="page.js"></script>
+<script>ScrollCraft.mount(document.body);</script>
+</body>
+</html>
