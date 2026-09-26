@@ -1,6 +1,6 @@
 // frontend/src/steps/Step1Import.tsx
-import { useState, useRef } from 'react'
-import { FileUp } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { FileUp, FolderOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,9 +9,12 @@ import { api } from '@/api/client'
 import type { ApiError } from '@/types'
 
 export function Step1Import() {
-  const [localPath, setLocalPath] = useState('')
-  const [loading,   setLoading]   = useState(false)
-  const dropRef = useRef<HTMLDivElement>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [manualPath, setManualPath] = useState('')
+  const [showManual, setShowManual] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [dragging, setDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const setPaperInfo   = useAppStore(s => s.setPaperInfo)
   const setImportError = useAppStore(s => s.setImportError)
@@ -23,24 +26,41 @@ export function Step1Import() {
   const storedPaperId  = useAppStore(s => s.paperId)
   const storedPdfPath  = useAppStore(s => s.pdfPath)
 
+  const chosen = selectedFile || (manualPath.trim() ? manualPath.trim() : null)
+
+  function pickFile(file: File | null) {
+    setSelectedFile(file)
+    setManualPath('')
+    setImportError(null)
+  }
+
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
+    setDragging(false)
     const file = e.dataTransfer.files[0]
     if (file) {
-      // 浏览器拿不到真实路径，只填文件名作为提示
-      setLocalPath(file.name)
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        setImportError('只支持 PDF 文件')
+        return
+      }
+      pickFile(file)
     }
   }
 
   async function handleSubmit() {
-    if (!localPath.trim()) return
+    if (!chosen) return
     setLoading(true)
     setImportError(null)
     setStartError(null)
 
     try {
-      // Step A: 导入论文
-      const imported = await api.paperImport({ local_path: localPath.trim() })
+      // Step A: 导入论文（上传文件 或 服务端本地路径）
+      let imported
+      if (selectedFile) {
+        imported = await api.paperUpload(selectedFile)
+      } else {
+        imported = await api.paperImport({ local_path: manualPath.trim() })
+      }
       setPaperInfo(imported.paper_id, imported.pdf_path)
 
       // Step B: 启动流水线
@@ -80,39 +100,73 @@ export function Step1Import() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-xl mx-auto space-y-8">
       {/* 页面标题 */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">导入论文</h1>
-        <p className="mt-1 text-sm text-muted-foreground">粘贴本地 PDF 路径，启动分析流水线</p>
+        <p className="mt-1 text-sm text-muted-foreground">选择本地 PDF，启动分析流水线</p>
       </div>
 
       <div className="space-y-4">
-        {/* 拖拽提示区 */}
+        {/* 文件选择 / 拖拽区 */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/pdf,.pdf"
+          className="hidden"
+          onChange={e => pickFile(e.target.files?.[0] ?? null)}
+        />
         <div
-          ref={dropRef}
           onDrop={handleDrop}
-          onDragOver={e => e.preventDefault()}
-          className="border-2 border-dashed border-border rounded-xl py-10 px-8 text-center hover:border-muted-foreground/40 transition-colors cursor-pointer"
-          onClick={() => document.getElementById('path-input')?.focus()}
+          onDragOver={e => { e.preventDefault(); setDragging(true) }}
+          onDragLeave={() => setDragging(false)}
+          onClick={() => fileInputRef.current?.click()}
+          className={`border-2 border-dashed rounded-xl py-10 px-8 text-center cursor-pointer transition-colors ${
+            dragging
+              ? 'border-blue-400 bg-blue-50/50 dark:bg-blue-950/20'
+              : 'border-border hover:border-muted-foreground/40'
+          }`}
         >
-          <FileUp className="w-7 h-7 text-muted-foreground/40 mx-auto mb-2.5" strokeWidth={1.5} />
-          <p className="text-sm text-muted-foreground">拖拽 PDF 到此处</p>
-          <p className="text-xs mt-1 text-muted-foreground/50">浏览器无法获取完整路径，请在下方手动输入</p>
+          {selectedFile ? (
+            <>
+              <FolderOpen className="w-7 h-7 text-blue-500 mx-auto mb-2.5" strokeWidth={1.5} />
+              <p className="text-sm font-medium text-foreground">{selectedFile.name}</p>
+              <p className="text-xs mt-1 text-muted-foreground">
+                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB · 点击重新选择
+              </p>
+            </>
+          ) : (
+            <>
+              <FileUp className="w-7 h-7 text-muted-foreground/40 mx-auto mb-2.5" strokeWidth={1.5} />
+              <p className="text-sm text-muted-foreground">点击选择 PDF 文件，或拖拽到此处</p>
+              <p className="text-xs mt-1 text-muted-foreground/50">支持本机与服务端两种部署</p>
+            </>
+          )}
         </div>
 
-        {/* 路径输入 */}
+        {/* 手动路径（高级选项，折叠） */}
         <div className="space-y-1.5">
-          <Label htmlFor="path-input" className="text-sm font-medium">本地文件路径</Label>
-          <Input
-            id="path-input"
-            value={localPath}
-            onChange={e => setLocalPath(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-            placeholder="C:\Users\...\paper.pdf"
-            className="h-10"
-            disabled={loading}
-          />
+          <button
+            type="button"
+            onClick={() => setShowManual(s => !s)}
+            className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
+          >
+            {showManual ? '▾ 收起手动输入' : '▸ 或手动输入服务端路径'}
+          </button>
+          {showManual && (
+            <div className="space-y-1.5">
+              <Label htmlFor="path-input" className="text-sm font-medium">本地文件路径（服务端可访问）</Label>
+              <Input
+                id="path-input"
+                value={manualPath}
+                onChange={e => { setManualPath(e.target.value); setSelectedFile(null) }}
+                onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+                placeholder="C:\Users\...\paper.pdf"
+                className="h-10"
+                disabled={loading}
+              />
+            </div>
+          )}
         </div>
 
         {/* 错误提示 */}
@@ -130,7 +184,7 @@ export function Step1Import() {
 
         <Button
           onClick={handleSubmit}
-          disabled={loading || !localPath.trim()}
+          disabled={loading || !chosen}
           className="w-full h-10"
         >
           {loading ? '处理中…' : '开始导入并运行'}

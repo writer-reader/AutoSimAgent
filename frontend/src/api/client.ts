@@ -3,6 +3,8 @@ import axios from 'axios'
 import type {
   PaperImportRequest, PaperImportResponse,
   WorkflowStartRequest, TaskStatusResponse,
+  TaskListResponse,
+  SystemStatus,
   ApiError,
 } from '@/types'
 
@@ -31,8 +33,29 @@ export const api = {
   taskStatus: (taskId: string) =>
     http.get<TaskStatusResponse>(`/tasks/${taskId}`).then(r => r.data),
 
+  taskList: (params?: { status?: string; limit?: number }) =>
+    http.get<TaskListResponse>('/tasks', { params }).then(r => r.data),
+
   codeContent: (taskId: string, filename: string) =>
     http.get<string>(`/workflow/${taskId}/code/${filename}`, { responseType: 'text' }).then(r => r.data),
+
+  // 产物文件 URL（直接用于 <img src>；后端只允许 result.artifacts 中登记过的文件名）
+  artifactUrl: (taskId: string, filename: string) =>
+    `/api/workflow/${taskId}/artifacts/${encodeURIComponent(filename)}`,
+
+  paperUpload: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return http.post<PaperImportResponse>('/papers/upload', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data)
+  },
+
+  workflowRestart: (taskId: string) =>
+    http.post<TaskStatusResponse>(`/workflow/${taskId}/restart`).then(r => r.data),
+
+  systemStatus: () =>
+    http.get<SystemStatus>('/system/status').then(r => r.data),
 }
 
 /** axios response interceptor: surface 4xx JSON body as ApiError */
