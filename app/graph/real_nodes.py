@@ -21,7 +21,8 @@ from app.tools.matlab_mcp import MatlabMcpClient
 # 直接用相对文件名/pwd 保存，避免依赖注入 outdir 变量（对 function 开头的脚本更稳）。
 _FIGURE_SAVE_HINT = (
     "所有产物直接保存到当前工作目录（用相对文件名或 fullfile(pwd,...)，不要依赖名为 outdir 的变量）。"
-    "若产生图形，用 exportgraphics 或 saveas 将每个 figure 存为 fig_1.png、fig_2.png。"
+    "若产生图形，画几张由你根据验收标准自主判断：只挑最能支撑验收结论的关键图（宁缺毋滥、不凑数），"
+    "用 exportgraphics 或 saveas 按 fig_1.png、fig_2.png、… 顺序命名；每张图必须先用 title() 写明它展示的内容。"
 )
 
 # MATLAB 脚本结构约束，避免 local function 相关的常见运行错误。

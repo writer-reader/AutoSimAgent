@@ -128,6 +128,14 @@ class EventStore:
             )
             return cur.rowcount
 
+    # delete_task 方法，删除任务记录及其全部事件。生成产物文件（data/code/generated/<task_id>/）
+    # 不在本接口清理范围，保留在磁盘上。任务不存在返回 False。
+    def delete_task(self, task_id: str) -> bool:
+        with self._lock, self._conn:
+            cur = self._conn.execute("DELETE FROM tasks WHERE task_id = ?", (task_id,))
+            self._conn.execute("DELETE FROM events WHERE task_id = ?", (task_id,))
+            return cur.rowcount > 0
+
     # ── 监测统计（/system/status 用）──────────────────────────
 
     # task_counts 方法，按状态分组的任务计数。

@@ -34,6 +34,21 @@ def get_task(task_id: str) -> TaskStatusResponse:
     return TaskStatusResponse(**{k: task[k] for k in ("task_id", "status", "stage", "error", "result", "criteria")})
 
 
+@router.delete("/{task_id}")
+def delete_task(task_id: str) -> dict[str, str | bool]:
+    """删除任务记录及其事件流。
+
+    运行中的任务拒绝删除（409）；生成产物文件保留在磁盘（data/code/generated/<task_id>/）。
+    """
+    task = registry.get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="task_not_found")
+    if task.get("status") == "running":
+        raise HTTPException(status_code=409, detail="task_is_running")
+    deleted = registry.delete(task_id)
+    return {"task_id": task_id, "deleted": deleted}
+
+
 @router.get("/{task_id}/events", response_model=TaskEventsResponse)
 def task_events(task_id: str, after_seq: int = Query(0, ge=0), limit: int = Query(500, ge=1, le=5000)) -> TaskEventsResponse:
     """任务历史事件回放（调试 / 评测 / 断线补传）。

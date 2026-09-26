@@ -85,6 +85,10 @@ class TaskRegistry:
                    limit: int = 50, offset: int = 0) -> list[dict]:
         return self._ensure().list_tasks(status, paper_id, limit, offset)
 
+    # delete 方法，删除任务记录及其事件流（运行中的任务由路由层拒绝）。
+    def delete(self, task_id: str) -> bool:
+        return self._ensure().delete_task(task_id)
+
     # ── 事件日志（append-only 落库）──────────────────────
 
     # push_event 方法，写一条事件到事件库（持久化，不丢）。
